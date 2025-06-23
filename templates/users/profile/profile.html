@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<style>
+.container {
+    margin-left: 50px;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+{% if not user.profile %}
+    <div class="alert alert-warning">Профиль не создан. Пожалуйста, сохраните изменения для создания профиля.</div>
+{% endif %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <div class="card-body text-center">
+                    <img src="{% if user.profile.avatar %}{{ user.profile.avatar.url }}{% else %}{% static 'img/default-avatar.png' %}{% endif %}" 
+                            class="rounded-circle mb-3" width="150" height="150" alt="Аватар {{ user.username }}">
+                    <h4>{{ user.username }}</h4>
+                    <p class="text-muted">{{ user.email }}</p>
+                    
+                    <div class="d-grid gap-2 mt-3">
+                        <a href="{% url 'users:profile_edit' %}" class="btn btn-outline-primary">
+                            <i class="bi bi-pencil-square me-1"></i>Редактировать
+                        </a>
+                        {% if user.is_superuser %}
+                        <a href="{% url 'admin:index' %}" class="btn btn-outline-danger mt-2">
+                            <i class="bi bi-shield-lock me-1"></i>В админку
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="bi bi-info-circle me-2"></i>Информация профиля</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <h6>О себе</h6>
+                        <p>{{ user.profile.bio|default:"Не указано" }}</p>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <h6>Дата регистрации</h6>
+                        <p>{{ user.date_joined|date:"d.m.Y H:i" }}</p>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <h6>Последний вход</h6>
+                        <p>{{ user.last_login|date:"d.m.Y H:i" }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

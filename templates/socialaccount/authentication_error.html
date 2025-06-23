@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block head_title %}{% trans "Ошибка социальной аутентификации" %}{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow-sm">
+                <div class="card-body p-4 text-center">
+                    <h2 class="card-title mb-4">{% trans "Ошибка входа через социальную сеть" %}</h2>
+                    <p class="lead">
+                        {% trans "Произошла ошибка при попытке входа через социальную сеть." %}
+                    </p>
+                    <div class="alert alert-danger mt-3">
+                        <strong>{% trans "Ошибка" %}:</strong> {{ auth_error }}
+                    </div>
+                    <a href="{% url 'account_login' %}" class="btn btn-primary mt-3">
+                        {% trans "Вернуться к входу" %}
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,26 @@
+{% if user.is_authenticated %}
+<div class="dropdown">
+    <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="userMenu" data-bs-toggle="dropdown">
+        <i class="bi bi-person-circle me-1"></i>
+        {{ user.username }}
+    </button>
+    <ul class="dropdown-menu dropdown-menu-end">
+        <li><a class="dropdown-item" href="{% url 'users:profile' %}">
+            <i class="bi bi-person me-2"></i>Профиль
+        </a></li>
+        <li><hr class="dropdown-divider"></li>
+        <li><a class="dropdown-item" href="{% url 'account_logout' %}">
+            <i class="bi bi-box-arrow-right me-2"></i>Выйти
+        </a></li>
+    </ul>
+</div>
+{% else %}
+<div class="d-flex gap-2">
+    <a href="{% url 'account_login' %}" class="btn btn-outline-primary">
+        <i class="bi bi-box-arrow-in-right me-1"></i>Войти
+    </a>
+    <a href="{% url 'account_signup' %}" class="btn btn-primary">
+        <i class="bi bi-person-plus me-1"></i>Регистрация
+    </a>
+</div>
+{% endif %}

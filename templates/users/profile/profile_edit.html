@@ -1,0 +1,447 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<style>
+    .profile-edit-card {
+        border: none;
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        overflow: hidden;
+        transition: all 0.3s ease;
+    }
+    
+    .dark-theme .profile-edit-card {
+        background-color: #2d3748;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    }
+    
+    .profile-edit-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        padding: 1.5rem;
+        color: white;
+        border-bottom: none;
+    }
+    
+    .profile-edit-title {
+        font-weight: 600;
+        font-size: 1.5rem;
+        margin-bottom: 0;
+    }
+    
+    .profile-edit-body {
+        padding: 2rem;
+    }
+    
+    .dark-theme .profile-edit-body {
+        background-color: #2d3748;
+        color: #e2e8f0;
+    }
+    
+    .section-title {
+        font-weight: 600;
+        color: #4a5568;
+        margin-bottom: 1.5rem;
+        padding-bottom: 0.75rem;
+        border-bottom: 1px solid #edf2f7;
+    }
+    
+    .dark-theme .section-title {
+        color: #e2e8f0;
+        border-bottom-color: #4a5568;
+    }
+    
+    .form-label {
+        font-weight: 500;
+        color: #4a5568;
+        margin-bottom: 0.5rem;
+        display: block;
+    }
+    
+    .dark-theme .form-label {
+        color: #cbd5e0;
+    }
+    
+    .form-control, .form-select, .form-control-file {
+        border-radius: 8px;
+        padding: 0.75rem 1rem;
+        border: 1px solid #e2e8f0;
+        transition: all 0.3s;
+        width: 100%;
+        background-color: white;
+    }
+    
+    .dark-theme .form-control,
+    .dark-theme .form-select,
+    .dark-theme .form-control-file {
+        background-color: #4a5568;
+        border-color: #4a5568;
+        color: #f7fafc;
+    }
+    
+    .form-control:focus, .form-select:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+    
+    .dark-theme .form-control:focus,
+    .dark-theme .form-select:focus {
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.3);
+    }
+    
+    /* Стили для аватара */
+    .avatar-section {
+        margin-bottom: 2rem;
+    }
+    
+    .avatar-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 2rem;
+        align-items: flex-start;
+    }
+    
+    .avatar-preview-container {
+        flex: 0 0 150px;
+    }
+    
+    .avatar-preview {
+        width: 150px;
+        height: 150px;
+        object-fit: cover;
+        border-radius: 12px;
+        border: 2px solid #edf2f7;
+        background-color: #f7fafc;
+    }
+    
+    .dark-theme .avatar-preview {
+        border-color: #4a5568;
+        background-color: #4a5568;
+    }
+    
+    .avatar-upload-container {
+        flex: 1;
+        min-width: 300px;
+    }
+    
+    .avatar-upload-label {
+        display: block;
+        margin-bottom: 1rem;
+    }
+    
+    .current-avatar-info {
+        font-size: 0.9rem;
+        color: #718096;
+        margin-bottom: 1rem;
+        word-break: break-all;
+    }
+    
+    .dark-theme .current-avatar-info {
+        color: #a0aec0;
+    }
+    
+    .custom-file-upload {
+        display: inline-block;
+        padding: 0.75rem 1.5rem;
+        background-color: #f7fafc;
+        color: #4a5568;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.3s;
+        font-weight: 500;
+        margin-bottom: 1rem;
+    }
+    
+    .custom-file-upload:hover {
+        background-color: #edf2f7;
+    }
+    
+    .dark-theme .custom-file-upload {
+        background-color: #4a5568;
+        color: #f7fafc;
+        border-color: #4a5568;
+    }
+    
+    .dark-theme .custom-file-upload:hover {
+        background-color: #2d3748;
+    }
+    
+    .file-name {
+        margin-left: 1rem;
+        font-size: 0.9rem;
+        color: #718096;
+    }
+    
+    .dark-theme .file-name {
+        color: #a0aec0;
+    }
+    
+    .avatar-clear-container {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-top: 1rem;
+    }
+    
+    .avatar-clear-label {
+        font-size: 0.9rem;
+        color: #718096;
+        cursor: pointer;
+    }
+    
+    .dark-theme .avatar-clear-label {
+        color: #a0aec0;
+    }
+    
+    /* Поле "О себе" */
+    .bio-section {
+        margin-bottom: 2rem;
+    }
+    
+    .bio-textarea {
+        width: 100%;
+        min-height: 150px;
+        resize: vertical;
+    }
+    
+    /* Кнопки */
+    .action-buttons {
+        display: flex;
+        justify-content: flex-end;
+        gap: 1rem;
+        margin-top: 2rem;
+    }
+    
+    .btn-save {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+        padding: 0.75rem 1.5rem;
+        font-weight: 500;
+        transition: all 0.3s;
+        color: white;
+        border-radius: 8px;
+    }
+    
+    .btn-save:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+        color: white;
+    }
+    
+    .btn-cancel {
+        background-color: #f7fafc;
+        color: #4a5568;
+        border: 1px solid #e2e8f0;
+        padding: 0.75rem 1.5rem;
+        font-weight: 500;
+        transition: all 0.3s;
+        border-radius: 8px;
+    }
+    
+    .btn-cancel:hover {
+        background-color: #edf2f7;
+        color: #2d3748;
+    }
+    
+    .dark-theme .btn-cancel {
+        background-color: #4a5568;
+        color: #f7fafc;
+        border-color: #4a5568;
+    }
+    
+    .dark-theme .btn-cancel:hover {
+        background-color: #2d3748;
+    }
+    
+    /* Ошибки */
+    .error-feedback {
+        color: #e53e3e;
+        font-size: 0.875rem;
+        margin-top: 0.25rem;
+    }
+    
+    .form-text {
+        font-size: 0.875rem;
+        color: #718096;
+    }
+    
+    .dark-theme .form-text {
+        color: #a0aec0;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card profile-edit-card">
+                <div class="card-header profile-edit-header">
+                    <h1 class="profile-edit-title">
+                        <i class="bi bi-person-gear me-2"></i>Редактирование профиля
+                    </h1>
+                </div>
+                
+                <div class="card-body profile-edit-body">
+                    <form method="POST" enctype="multipart/form-data" class="needs-validation" novalidate>
+                        {% csrf_token %}
+
+                        <h4 class="section-title">
+                            <i class="bi bi-person-vcard me-2"></i>Основная информация
+                        </h4>
+                        
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-6">
+                                <label for="{{ user_form.username.id_for_label }}" class="form-label">
+                                    Имя пользователя
+                                </label>
+                                {{ user_form.username }}
+                                {% if user_form.username.errors %}
+                                    <div class="error-feedback">
+                                        {{ user_form.username.errors.as_text }}
+                                    </div>
+                                {% endif %}
+                                <div class="form-text">Используется для входа в систему</div>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <label for="{{ user_form.email.id_for_label }}" class="form-label">
+                                    Email
+                                </label>
+                                {{ user_form.email }}
+                                {% if user_form.email.errors %}
+                                    <div class="error-feedback">
+                                        {{ user_form.email.errors.as_text }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-6">
+                                <label for="{{ user_form.first_name.id_for_label }}" class="form-label">
+                                    Имя
+                                </label>
+                                {{ user_form.first_name }}
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <label for="{{ user_form.last_name.id_for_label }}" class="form-label">
+                                    Фамилия
+                                </label>
+                                {{ user_form.last_name }}
+                            </div>
+                        </div>
+                        
+                        <hr class="my-4">
+
+                        <h4 class="section-title">
+                            <i class="bi bi-image me-2"></i>Фото профиля
+                        </h4>
+                        
+                        <div class="avatar-section">
+                            <div class="avatar-container">
+                                {% if user.profile.avatar %}
+                                <div class="avatar-preview-container">
+                                    <img src="{{ user.profile.avatar.url }}" class="avatar-preview" id="avatarPreview">
+                                </div>
+                                {% endif %}
+                                
+                                <div class="avatar-upload-container">
+                                    <label class="form-label">Загрузить новое фото</label>
+                                    
+                                    <div class="mb-3">
+                                        <label for="avatarUpload" class="custom-file-upload">
+                                            <i class="bi bi-upload me-1"></i>Выбрать файл
+                                        </label>
+                                        <span class="file-name" id="fileName">Файл не выбран</span>
+                                        <input type="file" name="avatar" id="avatarUpload" class="d-none" accept="image/*">
+                                    </div>
+                                    
+                                    {% if user.profile.avatar %}
+                                    <div class="current-avatar-info">
+                                        На данный момент: {{ user.profile.avatar.name|truncatechars:30 }}
+                                    </div>
+                                    
+                                    <div class="avatar-clear-container">
+                                        <input type="checkbox" name="avatar-clear" id="avatarClear" class="form-check-input">
+                                        <label for="avatarClear" class="avatar-clear-label">
+                                            Удалить текущее фото
+                                        </label>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <hr class="my-4">
+                        
+                        <h4 class="section-title">
+                            <i class="bi bi-file-text me-2"></i>О себе
+                        </h4>
+                        
+                        <div class="bio-section">
+                            <label for="{{ profile_form.bio.id_for_label }}" class="form-label">
+                                Расскажите о себе
+                            </label>
+                            {{ profile_form.bio }}
+                            <div class="form-text">Необязательное поле (максимум 500 символов)</div>
+                        </div>
+                        
+                        <div class="action-buttons">
+                            <a href="{% url 'users:profile' %}" class="btn btn-cancel">
+                                <i class="bi bi-x-lg me-1"></i>Отмена
+                            </a>
+                            <button type="submit" class="btn btn-save">
+                                <i class="bi bi-check-lg me-1"></i>Сохранить изменения
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.getElementById('avatarUpload').addEventListener('change', function(e) {
+    const fileNameElement = document.getElementById('fileName');
+    const previewElement = document.getElementById('avatarPreview');
+    
+    if (this.files && this.files[0]) {
+        fileNameElement.textContent = this.files[0].name;
+        
+        const reader = new FileReader();
+        
+        reader.onload = function(e) {
+            if (!previewElement) {
+                const previewContainer = document.querySelector('.avatar-preview-container');
+                if (previewContainer) {
+                    const img = document.createElement('img');
+                    img.id = 'avatarPreview';
+                    img.className = 'avatar-preview';
+                    img.src = e.target.result;
+                    previewContainer.appendChild(img);
+                }
+            } else {
+                previewElement.src = e.target.result;
+            }
+        }
+        
+        reader.readAsDataURL(this.files[0]);
+    } else {
+        fileNameElement.textContent = 'Файл не выбран';
+    }
+});
+
+document.addEventListener('DOMContentLoaded', function() {
+    const avatarInput = document.getElementById('avatarUpload');
+    const fileNameElement = document.getElementById('fileName');
+    
+    if (avatarInput && fileNameElement && avatarInput.files.length > 0) {
+        fileNameElement.textContent = avatarInput.files[0].name;
+    }
+});
+</script>
+{% endblock %}

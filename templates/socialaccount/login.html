@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">
+                        <i class="bi bi-people-fill me-2"></i>
+                        {% trans "Вход через социальную сеть" %}
+                    </h4>
+                </div>
+                <div class="card-body">
+                    {% if process == "connect" %}
+                        <p class="lead">
+                            {% blocktrans with provider.name as provider %}
+                            Вы собираетесь подключить новую стороннюю учетную запись с помощью {{ provider }}.
+                            {% endblocktrans %}
+                        </p>
+                    {% else %}
+                        <p class="lead">
+                            {% blocktrans with provider.name as provider %}
+                            Вы собираетесь войти в систему, используя {{ provider }} аккаунт.
+                            {% endblocktrans %}
+                        </p>
+                    {% endif %}
+
+                    <div class="d-grid gap-3 mt-4">
+                        <form method="post">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-primary btn-lg w-100">
+                                <i class="bi bi-arrow-right-circle me-2"></i>
+                                {% trans "Продолжить" %}
+                            </button>
+                        </form>
+                        
+                        <a href="{% url 'account_login' %}" class="btn btn-outline-secondary">
+                            <i class="bi bi-arrow-left me-2"></i>
+                            {% trans "Вернуться ко входу" %}
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
