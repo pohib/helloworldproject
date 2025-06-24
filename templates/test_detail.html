@@ -1,0 +1,194 @@
+{% extends 'base.html' %}
+
+{% block breadcrumbs %}
+<nav aria-label="breadcrumb" class="hacker-breadcrumb">
+    <ol class="breadcrumb bg-transparent">
+        <li class="breadcrumb-item"><a href="{% url 'home' %}" class="hacker-link">Главная</a></li>
+        <li class="breadcrumb-item"><a href="{{ test.lecture.course.get_absolute_url }}" class="hacker-link">{{ test.lecture.course.title }}</a></li>
+        <li class="breadcrumb-item"><a href="{{ test.lecture.get_absolute_url }}" class="hacker-link">{{ test.lecture.title }}</a></li>
+        <li class="breadcrumb-item active text-hacker" aria-current="page">{{ test.title }}</li>
+    </ol>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="hacker-card p-4 mb-4 {% if existing_result %}border-{% if existing_result.is_passed %}success{% else %}danger{% endif %}{% else %}border-warning{% endif %}">
+        {% if existing_result %}
+        <div class="test-result-alert alert alert-{% if existing_result.is_passed %}success{% else %}danger{% endif %} mb-4">
+            <div class="d-flex align-items-center">
+                <i class="bi bi-{% if existing_result.is_passed %}check-circle{% else %}x-circle{% endif %} me-2 fs-4"></i>
+                <div>
+                    <h5 class="mb-0">Вы уже прошли этот тест!</h5>
+                    <p class="mb-0">Ваш результат: {{ existing_result.score }} из {{ max_score }} ({{ percentage }}%)</p>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="test-header">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h1 class="text-hacker mb-0"><i class="bi bi-patch-question me-2"></i>{{ test.title }}</h1>
+                <span class="badge bg-gradient-green">Тест</span>
+            </div>
+            <div class="d-flex flex-wrap gap-2 align-items-center mb-3">
+                <span class="text-muted"><i class="bi bi-clock me-1"></i> {{ test.time_limit }} мин</span>
+                <span class="text-muted"><i class="bi bi-star me-1"></i> Проходной балл: {{ test.passing_score }}%</span>
+                {% if existing_result %}
+                <span class="badge bg-{% if existing_result.is_passed %}success{% else %}danger{% endif %}">
+                    {% if existing_result.is_passed %}Пройден{% else %}Не пройден{% endif %}
+                </span>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="test-description p-3 mb-4 terminal-like">
+            {{ test.description|safe }}
+        </div>
+
+        {% if not existing_result or request.GET.retry %}
+        <form method="post" class="hacker-form">
+            {% csrf_token %}
+            <div class="questions-container">
+                {% for field in form %}
+                    {% with question=field.field.question %}
+                    <div class="question-card mb-4 p-3 border-top border-warning">
+                        <h5 class="text-warning">{{ question.text|safe }}</h5>
+                        <div class="answers">
+                        {% for choice in field %}
+                            <div class="form-check">
+                                <input type="radio" 
+                                    class="form-check-input" 
+                                    name="{{ field.name }}" 
+                                    id="{{ choice.id_for_label }}" 
+                                    value="{{ choice.data.value }}"
+                                    {% if existing_result and choice.data.value|stringformat:"s" in existing_result.details.values|join:"" %}checked{% endif %}>
+                                <label class="form-check-label" for="{{ choice.id_for_label }}">
+                                    {{ choice.choice_label|striptags }}
+                                </label>
+                            </div>
+                        {% endfor %}
+                        </div>
+                    </div>
+                    {% endwith %}
+                {% endfor %}
+            </div>
+
+            <div class="test-footer text-end mt-4">
+                <button type="submit" class="btn btn-hack-gradient">
+                    <i class="bi bi-send me-1"></i> {% if existing_result %}Отправить повторно{% else %}Отправить тест{% endif %}
+                </button>
+            </div>
+        </form>
+        {% else %}
+        <div class="text-center py-4">
+            <a href="{% url 'test_detail' test.id %}?retry=true" class="btn btn-hack-gradient">
+                <i class="bi bi-arrow-repeat me-1"></i> Пройти тест снова
+            </a>
+            <a href="{{ test.lecture.get_absolute_url }}" class="btn btn-hack-outline ms-2">
+                <i class="bi bi-arrow-left me-1"></i> Вернуться к лекции
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.test-description {
+    border-left: 3px solid var(--hacker-green);
+    background: rgba(15, 255, 15, 0.03);
+    box-shadow: inset 0 0 10px rgba(15, 255, 15, 0.1);
+}
+
+.question-card {
+    background: rgba(15, 30, 15, 0.2);
+    border-radius: 5px;
+    border-left: 2px solid rgba(15, 255, 15, 0.3) !important;
+    transition: all 0.3s;
+}
+
+.question-card:hover {
+    background: rgba(15, 30, 15, 0.3);
+    border-left: 2px solid var(--hacker-green) !important;
+}
+
+.answers {
+    margin-left: 20px;
+}
+
+.hacker-form .form-check-input {
+    background-color: #0c0c0c;
+    border: 1px solid var(--hacker-green);
+}
+
+.hacker-form .form-check-input:checked {
+    background-color: var(--hacker-green);
+    border-color: var(--hacker-green);
+    box-shadow: 0 0 5px var(--matrix-green);
+}
+
+.hacker-form .form-check-label {
+    color: #ddd;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.hacker-form .form-check-label:hover {
+    color: var(--hacker-green);
+    text-shadow: 0 0 5px var(--matrix-green);
+}
+
+.test-result-alert {
+    border-left: 4px solid;
+    background: rgba(15, 255, 15, 0.05);
+    box-shadow: inset 0 0 15px rgba(15, 255, 15, 0.1);
+}
+
+.test-result-alert.alert-danger {
+    background: rgba(var(--bs-danger-rgb), 0.1);
+}
+
+.badge.bg-gradient-green {
+    background: linear-gradient(135deg, rgba(15, 255, 15, 0.3), var(--hacker-green));
+    color: #000;
+    font-weight: bold;
+}
+
+.btn-hack-gradient {
+    background: linear-gradient(135deg, rgba(15, 255, 15, 0.2), var(--hacker-green));
+    color: #000;
+    border: none;
+    font-weight: bold;
+    transition: all 0.3s;
+    box-shadow: 0 0 10px rgba(15, 255, 15, 0.3);
+}
+
+.btn-hack-gradient:hover {
+    background: linear-gradient(135deg, var(--hacker-green), rgba(15, 255, 15, 0.8));
+    color: #000;
+    box-shadow: 0 0 15px var(--matrix-green);
+}
+
+.btn-hack-outline {
+    background: transparent;
+    color: var(--hacker-green);
+    border: 1px solid var(--hacker-green);
+    transition: all 0.3s;
+}
+
+.btn-hack-outline:hover {
+    background: rgba(15, 255, 15, 0.1);
+    box-shadow: 0 0 10px rgba(15, 255, 15, 0.2);
+}
+
+.text-warning {
+    color: var(--hacker-green) !important;
+}
+
+.border-warning {
+    border-color: var(--hacker-green) !important;
+}
+</style>
+{% endblock %}

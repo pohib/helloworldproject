@@ -1,18 +1,20 @@
 {% load socialaccount %}
 
-<div class="social-auth my-3">
-    <p class="text-center text-muted">Войдите через:</p>
-    <div class="d-flex justify-content-center gap-2">
-        <a href="{% provider_login_url 'google' %}" class="btn btn-outline-danger">
-            <i class="bi bi-google me-2"></i>Google
+<div class="social-auth my-4">
+    <p class="text-center text-muted mb-3"></p>
+    <div class="d-flex justify-content-center gap-3 flex-wrap">
+        <a href="{% provider_login_url 'google' %}" class="btn btn-hack-social google">
+            <i class="bi bi-google me-2"></i>GOOGLE
         </a>
-        <a href="{% provider_login_url 'github' %}" class="btn btn-outline-dark">
-            <i class="bi bi-github me-2"></i>GitHub
+        
+        <a href="{% provider_login_url 'github' %}" class="btn btn-hack-social github">
+            <i class="bi bi-github me-2"></i>GITHUB
         </a>
+        
         <div class="telegram-login">
             <script async 
                     src="https://telegram.org/js/telegram-widget.js?22" 
-                    data-telegram-login="oauthdjango_bot"
+                    data-telegram-login="projectsite_bot"
                     data-size="large" 
                     data-auth-url="{% url 'users:telegram_login' %}"
                     data-request-access="write">
@@ -20,3 +22,61 @@
         </div>
     </div>
 </div>
+
+<style>
+    .btn-hack-social {
+        padding: 0.75rem 1.5rem;
+        font-weight: bold;
+        border-radius: 0;
+        border: 1px solid;
+        transition: all 0.3s;
+        position: relative;
+        overflow: hidden;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+    
+    .btn-hack-social::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+        transition: 0.5s;
+    }
+    
+    .btn-hack-social:hover::before {
+        left: 100%;
+    }
+    
+    .btn-hack-social.google {
+        background: transparent;
+        color: #db4437;
+        border-color: #db4437;
+    }
+    
+    .btn-hack-social.google:hover {
+        background: #db4437;
+        color: #000;
+        box-shadow: 0 0 15px rgba(219, 68, 55, 0.7);
+    }
+    
+    .btn-hack-social.github {
+        background: transparent;
+        color: #333;
+        border-color: #333;
+    }
+    
+    .btn-hack-social.github:hover {
+        background: #333;
+        color: #fff;
+        box-shadow: 0 0 15px rgba(51, 51, 51, 0.7);
+    }
+    
+    .telegram-login {
+        display: inline-block;
+        vertical-align: middle;
+    }
+</style>

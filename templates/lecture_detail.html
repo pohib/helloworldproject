@@ -1,0 +1,410 @@
+{% extends 'base.html' %}
+
+{% block breadcrumbs %}
+<nav aria-label="breadcrumb" class="hacker-breadcrumb">
+    <ol class="breadcrumb bg-transparent">
+        <li class="breadcrumb-item"><a href="{% url 'home' %}" class="hacker-link">Главная</a></li>
+        <li class="breadcrumb-item"><a href="{{ lecture.course.get_absolute_url }}" class="hacker-link">{{ lecture.course.title }}</a></li>
+        <li class="breadcrumb-item active text-hacker" aria-current="page">{{ lecture.title }}</li>
+    </ol>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="hacker-card p-4 mb-4">
+        <div class="lecture-header">
+            <h1 class="text-hacker mb-3">{{ lecture.title }}</h1>
+            <div class="d-flex flex-wrap gap-2 align-items-center mb-3">
+                <span class="badge bg-{% if lecture.course.difficulty == 1 %}success{% elif lecture.course.difficulty == 2 %}warning{% else %}danger{% endif %}">
+                    {{ lecture.course.get_difficulty_display }}
+                </span>
+                <span class="text-muted"><i class="bi bi-clock me-1"></i> {{ lecture.duration }} мин</span>
+                {% if lecture.video_url %}
+                <a href="#video-section" class="btn btn-hack-outline btn-sm ms-2">
+                    <i class="bi bi-play-circle me-1"></i> Видео
+                </a>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="lecture-content p-3 mb-4">
+            {{ lecture.content|safe }}
+        </div>
+
+        {% if lecture.video_url %}
+        <div class="video-section mb-4" id="video-section">
+            <h3 class="text-hacker mb-3"><i class="bi bi-film me-2"></i>Видео лекции</h3>
+            <div class="ratio ratio-16x9">
+                <iframe src="{{ lecture.video_url }}" allowfullscreen class="border border-success"></iframe>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    {% if tasks %}
+    <div class="hacker-card p-4 mb-4">
+        <h3 class="text-hacker mb-3"><i class="bi bi-code-square me-2"></i>Практические задания</h3>
+        <div class="row g-3">
+            {% for task in tasks %}
+            <div class="col-md-6">
+                <div class="hacker-card h-100 p-3 {% if task.task_type == 'quiz' %}border-warning{% elif task.task_type == 'code' %}border-primary{% elif task.task_type == 'ctf' %}border-danger{% else %}border-secondary{% endif %}">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <h5 class="mb-0">{{ task.title }}</h5>
+                        <span class="badge bg-{% if task.task_type == 'quiz' %}warning{% elif task.task_type == 'code' %}primary{% elif task.task_type == 'ctf' %}danger{% else %}secondary{% endif %}">
+                            {{ task.get_task_type_display }}
+                        </span>
+                    </div>
+                    <div class="task-description text-muted mb-3">
+                        {{ task.description|safe|truncatewords_html:30 }}
+                    </div>
+                    <a href="{% url 'task_detail' task.id %}" class="btn btn-{% if task.task_type == 'quiz' %}hack-warning{% elif task.task_type == 'code' %}hack-primary{% elif task.task_type == 'ctf' %}hack-danger{% else %}hack-outline{% endif %} w-100">
+                        <i class="bi bi-arrow-right-circle me-1"></i>Перейти
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    {% if tests %}
+    <div class="hacker-card p-4 mb-4">
+        <h3 class="text-hacker mb-3"><i class="bi bi-patch-question me-2"></i>Тесты</h3>
+        <div class="row g-3">
+            {% for test in tests %}
+            <div class="col-md-6">
+                <div class="hacker-card h-100 p-3 border-warning">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <h5 class="mb-0">{{ test.title }}</h5>
+                        <span class="badge bg-warning text-dark">Тест</span>
+                    </div>
+                    <div class="test-description text-muted mb-3">
+                        {{ test.description|safe|truncatewords_html:30 }}
+                    </div>
+                    <a href="{% url 'test_detail' test.id %}" class="btn btn-hack-warning w-100">
+                        <i class="bi bi-arrow-right-circle me-1"></i>Пройти тест
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="hacker-card p-4">
+        <h3 class="text-hacker mb-3"><i class="bi bi-chat-left-text me-2"></i>Вопросы и комментарии</h3>
+        <form method="post" class="comment-form">
+            {% csrf_token %}
+            <input type="hidden" name="form_type" value="comment">
+            {{ comment_form.text }}
+            <div class="btn-container">
+                <button type="submit" class="btn btn-hack">Отправить</button>
+            </div>
+        </form>
+        <div class="comments-list">
+            {% for comment in comments %}
+            <div class="comment hacker-card p-3 mb-3 {% if comment.author == request.user %}border-success{% endif %}">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <div class="d-flex align-items-center">
+                        <span class="text-hacker fw-bold me-2">{{ comment.author.username }}</span>
+                        <small class="text-muted">{{ comment.created_at|date:"d.m.Y H:i" }}</small>
+                    </div>
+                    {% if comment.author == request.user %}
+                    <form method="post" action="{% url 'delete_comment' comment.id %}" class="d-inline">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-sm btn-hack-outline" onclick="return confirm('Удалить комментарий?')">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </form>
+                    {% endif %}
+                </div>
+                <div class="comment-text mb-2">{{ comment.text }}</div>
+
+                <button class="btn btn-sm btn-hack-outline reply-btn" data-comment-id="{{ comment.id }}">
+                    <i class="bi bi-reply me-1"></i>Ответить
+                </button>
+
+                <form method="post" class="reply-form mt-3" style="display: none;" data-parent-id="{{ comment.id }}">
+                    {% csrf_token %}
+                    <input type="hidden" name="form_type" value="reply">
+                    <input type="hidden" name="parent_id" value="{{ comment.id }}">
+                    <div class="mb-2">
+                        <textarea name="text" class="form-control hacker-textarea" rows="2" placeholder="Ваш ответ..." required></textarea>
+                    </div>
+                    <div class="d-flex justify-content-end gap-2">
+                        <button type="button" class="btn btn-hack-outline btn-sm cancel-reply">Отмена</button>
+                        <button type="submit" class="btn btn-hack btn-sm">Отправить</button>
+                    </div>
+                </form>
+
+                {% for reply in comment.replies.all %}
+                <div class="reply mt-3 ms-4 ps-3 border-start border-success">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <div class="d-flex align-items-center">
+                            <span class="text-hacker fw-bold me-2">{{ reply.author.username }}</span>
+                            <small class="text-muted">{{ reply.created_at|date:"d.m.Y H:i" }}</small>
+                        </div>
+                        {% if reply.author == request.user %}
+                        <form method="post" action="{% url 'delete_comment' reply.id %}" class="d-inline">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-sm btn-hack-outline" onclick="return confirm('Удалить ответ?')">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </form>
+                        {% endif %}
+                    </div>
+                    <div class="reply-text">{{ reply.text }}</div>
+                </div>
+                {% endfor %}
+            </div>
+            {% empty %}
+            <div class="text-center py-3 text-muted">
+                <i class="bi bi-chat-square-text" style="font-size: 2rem;"></i>
+                <p class="mt-2">Пока нет комментариев. Станьте первым</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.hacker-breadcrumb .breadcrumb-item a {
+    color: var(--hacker-green);
+    text-decoration: none;
+    transition: all 0.3s;
+}
+
+.hacker-breadcrumb .breadcrumb-item a:hover {
+    text-shadow: 0 0 5px var(--matrix-green);
+}
+
+.hacker-breadcrumb .breadcrumb-item.active {
+    color: var(--hacker-text);
+}
+
+.lecture-content {
+    border-left: 3px solid var(--hacker-green);
+    padding-left: 15px;
+    background: rgba(0, 255, 0, 0.03);
+}
+
+.lecture-content img {
+    max-width: 100%;
+    height: auto;
+    border: 1px solid #333;
+    margin: 1rem 0;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+}
+
+.task-description img,
+.test-description img {
+    max-width: 100%;
+    height: auto;
+}
+
+.comment-form textarea {
+    background-color: var(--hacker-card);
+    border: 1px solid #333;
+    color: var(--hacker-text);
+    width: 100%;
+    min-height: 120px;
+    padding: 10px;
+    font-family: 'Courier New', monospace;
+    transition: all 0.3s;
+}
+
+.comment-form textarea:focus {
+    border-color: var(--hacker-green);
+    color: var(--hacker-text);
+    box-shadow: 0 0 0 0.25rem rgba(0, 255, 0, 0.25);
+    outline: none;
+}
+
+
+.btn-hack-warning {
+    background: transparent;
+    color: #ffc107;
+    border: 1px solid #ffc107;
+    border-radius: 0;
+}
+
+.btn-hack-warning:hover {
+    background: #ffc107;
+    color: #000;
+}
+
+.form-control:focus {
+    color: var(--hacker-text) !important;
+}
+
+.btn-hack-primary {
+    background: transparent;
+    color: #0d6efd;
+    border: 1px solid #0d6efd;
+    border-radius: 0;
+}
+
+.btn-hack-primary:hover {
+    background: #0d6efd;
+    color: #fff;
+}
+
+.btn-hack-danger {
+    background: transparent;
+    color: #dc3545;
+    border: 1px solid #dc3545;
+    border-radius: 0;
+}
+
+.btn-hack-danger:hover {
+    background: #dc3545;
+    color: #fff;
+}
+
+iframe {
+    background: #000;
+    box-shadow: 0 0 15px var(--matrix-green);
+}
+
+.comment {
+    border-left: 3px solid var(--hacker-green);
+    transition: all 0.3s;
+}
+
+.comment:hover {
+    box-shadow: 0 0 10px rgba(0, 255, 0, 0.1);
+}
+
+.reply {
+    position: relative;
+}
+
+.reply:before {
+    content: "↳";
+    position: absolute;
+    left: -15px;
+    top: 0;
+    color: var(--hacker-green);
+}
+
+.comment-text, .reply-text {
+    white-space: pre-wrap;
+    word-break: break-word;
+    font-family: 'Courier New', monospace;
+}
+
+.hacker-textarea {
+    background-color: var(--hacker-card);
+    border: 1px solid #333;
+    color: var(--hacker-text);
+    width: 100%;
+    padding: 10px;
+    font-family: 'Courier New', monospace;
+    transition: all 0.3s;
+    border-radius: 0;
+}
+
+.hacker-textarea:focus {
+    border-color: var(--hacker-green);
+    box-shadow: 0 0 0 0.25rem rgba(0, 255, 0, 0.25);
+    outline: none;
+    background-color: var(--hacker-card);
+}
+
+.comment-form textarea::placeholder,
+.hacker-textarea::placeholder {
+    color:rgba(108, 117, 125, 0.57);
+    opacity: 1;
+    font-style: italic;
+}
+.reply-form textarea::-webkit-input-placeholder,
+.comment-form textarea::-webkit-input-placeholder {
+    color: rgba(108, 117, 125, 0.57);
+}
+
+.reply-form textarea::-webkit-input-placeholder,
+.comment-form textarea::-moz-placeholder {
+    color: rgba(108, 117, 125, 0.57);
+    opacity: 1;
+}
+
+.reply-form textarea::-webkit-input-placeholder,
+.comment-form textarea:-ms-input-placeholder {
+    color: rgba(108, 117, 125, 0.57);
+}
+
+.reply-form textarea::-webkit-input-placeholder,
+.comment-form textarea:-moz-placeholder {
+    color: rgba(108, 117, 125, 0.57);
+    opacity: 1;
+}
+
+.comment-form {
+    margin-bottom: 30px;
+}
+
+.comment-form .btn-container {
+    margin-top: 15px;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.comments-list {
+    margin-top: 20px;
+}
+
+.reply-form {
+    margin: 15px 0;
+}
+
+.reply-form .btn-container {
+    margin-top: 10px;
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.reply-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const commentId = this.getAttribute('data-comment-id');
+            const replyForm = document.querySelector(`.reply-form[data-parent-id="${commentId}"]`);
+
+            document.querySelectorAll('.reply-form').forEach(form => {
+                if (form !== replyForm) form.style.display = 'none';
+            });
+
+            if (replyForm.style.display === 'none') {
+                replyForm.style.display = 'block';
+                replyForm.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            } else {
+                replyForm.style.display = 'none';
+            }
+        });
+    });
+
+    document.querySelectorAll('.cancel-reply').forEach(btn => {
+        btn.addEventListener('click', function() {
+            this.closest('.reply-form').style.display = 'none';
+        });
+    });
+
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.has('comment')) {
+        const commentId = urlParams.get('comment');
+        const commentElement = document.getElementById(`comment-${commentId}`);
+        if (commentElement) {
+            commentElement.classList.add('blink-animation');
+            setTimeout(() => {
+                commentElement.classList.remove('blink-animation');
+            }, 3000);
+            commentElement.scrollIntoView({ behavior: 'smooth' });
+        }
+    }
+});
+</script>
+{% endblock %}

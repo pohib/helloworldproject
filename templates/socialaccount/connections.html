@@ -6,35 +6,44 @@
 {% block content %}
 <div class="container mt-5">
     <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card shadow-sm">
-                <div class="card-body p-4">
-                    <h2 class="card-title mb-4">{% trans "Подключенные аккаунты" %}</h2>
-
+        <div class="col-md-8 col-lg-6">
+            <div class="hacker-card-connections">
+                <div class="card-header border-bottom border-info bg-dark">
+                    <h4 class="mb-0 text-info">
+                        <i class="bi bi-shuffle me-3" style="margin-left: 10px;"></i>
+                        <span class="typing-container">
+                            <span class="typing-text">ПОДКЛЮЧЕННЫЕ АККАУНТЫ</span>
+                            <span class="typing-cursor" style="background-color: #0dcaf0;"></span>
+                        </span>
+                    </h4>
+                </div>
+                <div class="card-body terminal-like">
                     {% if form.accounts %}
-                        <p>{% blocktrans %}Вы можете войти в систему используя следующие подключенные аккаунты:{% endblocktrans %}</p>
+                        <p class="text-muted mb-4">{% blocktrans %}Вы можете войти через следующие подключенные соцсети:{% endblocktrans %}</p>
 
                         <form method="post" action="{% url 'socialaccount_connections' %}">
                             {% csrf_token %}
 
                             {% if form.non_field_errors %}
-                                <div class="alert alert-danger">
+                                <div class="alert alert-hacker border-danger mb-4">
+                                    <i class="bi bi-exclamation-triangle-fill me-2"></i>
                                     {{ form.non_field_errors }}
                                 </div>
                             {% endif %}
 
-                            <div class="list-group mb-4">
+                            <div class="hacker-accounts-list mb-4">
                                 {% for base_account in form.accounts %}
                                     {% with base_account.get_provider_account as account %}
-                                    <div class="list-group-item">
+                                    <div class="hacker-account-item">
                                         <div class="form-check">
                                             <input id="id_account_{{ base_account.id }}" type="radio" name="account" 
-                                                value="{{ base_account.id }}" class="form-check-input">
+                                                value="{{ base_account.id }}" class="form-check-input hacker-radio">
                                             <label for="id_account_{{ base_account.id }}" class="form-check-label">
-                                                <span class="socialaccount_provider {{ base_account.provider }} {{ account.get_brand.id }}">
+                                                <span class="socialaccount_provider {{ base_account.provider }} {{ account.get_brand.id }} text-info">
+                                                    <i class="bi bi-{{ account.get_brand.id }} me-2"></i>
                                                     {{ account.get_brand.name }}
                                                 </span>:
-                                                {{ account }}
+                                                <span class="text-muted">{{ account }}</span>
                                             </label>
                                         </div>
                                     </div>
@@ -42,16 +51,24 @@
                                 {% endfor %}
                             </div>
 
-                            <button type="submit" class="btn btn-danger">{% trans 'Отключить' %}</button>
+                            <button type="submit" class="btn btn-hack-danger">
+                                <i class="bi bi-plug-fill me-1"></i> {% trans 'ОТКЛЮЧИТЬ ВЫБРАННОЕ' %}
+                            </button>
                         </form>
 
                     {% else %}
-                        <p>{% trans 'У вас нет подключенных аккаунтов социальных сетей.' %}</p>
+                        <div class="alert alert-hacker border-warning mb-4">
+                            <i class="bi bi-info-circle-fill me-2"></i>
+                            {% trans 'Нет подключенных соцсетей' %}
+                        </div>
                     {% endif %}
 
-                    <hr class="my-4">
+                    <hr class="my-4 bg-secondary opacity-25">
 
-                    <h3 class="h5 mb-3">{% trans 'Добавить аккаунт социальной сети' %}</h3>
+                    <h4 class="text-info mb-3">
+                        <i class="bi bi-plus-circle me-2"></i>
+                        {% trans 'ПОДКЛЮЧИТЬ НОВЫЙ АККАУНТ' %}
+                    </h4>
 
                     <div class="socialaccount_providers">
                         {% include "socialaccount/snippets/provider_list.html" with process="connect" %}
@@ -63,4 +80,130 @@
         </div>
     </div>
 </div>
+
+<style>
+    .hacker-card-connections {
+        background: var(--hacker-card);
+        border: 1px solid #333;
+        border-left: 3px solid #0dcaf0;
+        box-shadow: 0 0 20px rgba(13, 202, 240, 0.1);
+    }
+    
+    .hacker-accounts-list {
+        border: 1px solid #444;
+        background: var(--hacker-darker);
+    }
+    
+    .hacker-account-item {
+        padding: 1rem;
+        border-bottom: 1px solid #444;
+        transition: all 0.3s;
+    }
+    
+    .hacker-account-item:last-child {
+        border-bottom: none;
+    }
+    
+    .hacker-account-item:hover {
+        background: rgba(13, 202, 240, 0.05);
+    }
+    
+    .hacker-radio {
+        background: var(--hacker-darker);
+        border: 1px solid #444;
+    }
+    
+    .hacker-radio:checked {
+        background-color: #0dcaf0;
+        border-color: #0dcaf0;
+    }
+    
+    .btn-hack-danger {
+        background: transparent;
+        color: #ff5555;
+        border: 1px solid #ff5555;
+        padding: 0.75rem 1.5rem;
+        font-weight: bold;
+        transition: all 0.3s;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .btn-hack-danger::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 85, 85, 0.2), transparent);
+        transition: 0.5s;
+    }
+    
+    .btn-hack-danger:hover::before {
+        left: 100%;
+    }
+    
+    .btn-hack-danger:hover {
+        background: #ff5555;
+        color: #000;
+        box-shadow: 0 0 15px rgba(255, 85, 85, 0.7);
+    }
+    
+    .typing-container {
+        display: inline-flex;
+        align-items: center;
+        margin-left: 5px;
+    }
+    
+    .typing-text {
+        white-space: nowrap;
+        overflow: hidden;
+        animation: typing 1.5s steps(25, end);
+    }
+    
+    .typing-cursor {
+        display: inline-block;
+        width: 2px;
+        height: 1.2em;
+        animation: blink 1s step-end infinite;
+    }
+    
+    @keyframes typing {
+        from { width: 0 }
+        to { width: 100% }
+    }
+    
+    @keyframes blink {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0; }
+    }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const typingText = document.querySelector('.typing-text');
+    if (typingText) {
+        const text = typingText.textContent;
+        typingText.textContent = '';
+        
+        let i = 0;
+        const typingInterval = setInterval(() => {
+            if (i < text.length) {
+                typingText.textContent += text.charAt(i);
+                i++;
+            } else {
+                clearInterval(typingInterval);
+                const cursor = typingText.nextElementSibling;
+                if (cursor && cursor.classList.contains('typing-cursor')) {
+                    cursor.style.animation = 'none';
+                    setTimeout(() => {
+                        cursor.style.display = 'none';
+                    }, 500);
+                }
+            }
+        }, 50);
+    }
+});
+</script>
 {% endblock %}

@@ -1,7 +1,8 @@
 from django.contrib import admin
+from django.conf import settings
 from django.db import models
 from tinymce.widgets import TinyMCE
-from .models import Course, Lecture, Test, Question, Answer, Task, UserProgress, UserTestResult, Feedback
+from .models import Course, Lecture, Test, Question, Answer, Task, UserProgress, UserTestResult, Feedback, TaskResponse
 
 class AnswerInline(admin.TabularInline):
     model = Answer
@@ -70,10 +71,30 @@ class TaskAdmin(admin.ModelAdmin):
 @admin.register(Lecture)
 class LectureAdmin(admin.ModelAdmin):
     inlines = [TaskInline, TestInline]
-    list_display = ('title', 'course', 'order', 'is_published')
+    list_display = ('title', 'course', 'order', 'is_published', 'has_video')
     list_editable = ('order', 'is_published')
     list_filter = ('course', 'is_published')
     prepopulated_fields = {'slug': ('title',)}
+    
+    fieldsets = (
+        (None, {
+            'fields': ('course', 'title', 'slug', 'content')
+        }),
+        ('Дополнительно', {
+            'fields': (
+                ('video_url', 'duration'),
+                ('resources', 'order'),
+                'is_published'
+            ),
+            'classes': ('collapse',)
+        }),
+    )
+
+    def has_video(self, obj):
+        return bool(obj.video_url)
+    has_video.boolean = True
+    has_video.short_description = 'Есть видео'
+    
     formfield_overrides = {
         models.TextField: {'widget': TinyMCE()}
     }
@@ -86,9 +107,29 @@ class UserProgressAdmin(admin.ModelAdmin):
 
 @admin.register(UserTestResult)
 class UserTestResultAdmin(admin.ModelAdmin):
-    list_display = ('user', 'test', 'score', 'is_passed', 'completed_at')
+    list_display = ('user', 'test', 'score', 'max_score', 'percentage', 'is_passed', 'completed_at')
     list_filter = ('user', 'test__lecture__course', 'is_passed')
     search_fields = ('user__username', 'test__title')
+    readonly_fields = ('details_preview',)
+    
+    def max_score(self, obj):
+        return obj.get_max_score()
+    max_score.short_description = 'Макс. балл'
+    
+    def percentage(self, obj):
+        return f"{round(obj.score / obj.get_max_score() * 100)}%"
+    percentage.short_description = 'Процент'
+    
+    def details_preview(self, obj):
+        if not obj.details:
+            return "-"
+        preview = []
+        for q_id, detail in obj.details.items():
+            status = "✓" if detail.get('is_correct') else "✗"
+            preview.append(f"{status} Вопрос: {detail.get('question', '')}")
+        return "<br>".join(preview)
+    details_preview.short_description = "Детали"
+    details_preview.allow_tags = True
 
 @admin.register(Feedback)
 class FeedbackAdmin(admin.ModelAdmin):
@@ -100,3 +141,30 @@ class FeedbackAdmin(admin.ModelAdmin):
     def mark_as_processed(self, request, queryset):
         queryset.update(is_processed=True)
     mark_as_processed.short_description = "Пометить как обработанные"
+
+@admin.register(TaskResponse)
+class TaskResponseAdmin(admin.ModelAdmin):
+    list_display = ('task', 'user', 'submitted_at', 'score', 'is_checked')
+    list_filter = ('is_checked', 'task', 'user')
+    search_fields = ('answer', 'feedback', 'user__username', 'task__title')
+    list_editable = ('score', 'is_checked')
+    readonly_fields = ('task', 'user', 'submitted_at')
+    fieldsets = (
+        (None, {
+            'fields': ('task', 'user', 'submitted_at')
+        }),
+        ('Ответ', {
+            'fields': ('answer',)
+        }),
+        ('Проверка', {
+            'fields': ('is_checked', 'score', 'feedback')
+        }),
+    )
+    
+    def save_model(self, request, obj, form, change):
+        if 'score' in form.changed_data or 'feedback' in form.changed_data:
+            obj.is_checked = True
+        super().save_model(request, obj, form, change)
+
+admin.site.site_header = settings.ADMIN_SITE_HEADER
+admin.site.index_title = "Управление учебными материалами"

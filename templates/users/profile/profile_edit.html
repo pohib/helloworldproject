@@ -3,97 +3,79 @@
 
 {% block extra_css %}
 <style>
-    .profile-edit-card {
-        border: none;
-        border-radius: 12px;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-        overflow: hidden;
-        transition: all 0.3s ease;
+    .profile-edit-container {
+        position: relative;
+        z-index: 1;
     }
     
-    .dark-theme .profile-edit-card {
-        background-color: #2d3748;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    .hacker-form-card {
+        background: var(--hacker-card);
+        border: 1px solid #333;
+        border-left: 3px solid var(--hacker-green);
+        box-shadow: 0 0 20px rgba(0, 255, 0, 0.1);
     }
     
-    .profile-edit-header {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    .hacker-form-header {
+        background: var(--hacker-darker);
+        border-bottom: 1px solid var(--hacker-green);
         padding: 1.5rem;
-        color: white;
-        border-bottom: none;
+        color: var(--hacker-green);
     }
     
-    .profile-edit-title {
-        font-weight: 600;
-        font-size: 1.5rem;
+    .hacker-form-title {
+        font-weight: bold;
+        letter-spacing: 1px;
         margin-bottom: 0;
+        text-shadow: 0 0 10px var(--matrix-green);
     }
     
-    .profile-edit-body {
+    .hacker-form-body {
         padding: 2rem;
-    }
-    
-    .dark-theme .profile-edit-body {
-        background-color: #2d3748;
-        color: #e2e8f0;
+        background: var(--hacker-card);
     }
     
     .section-title {
-        font-weight: 600;
-        color: #4a5568;
-        margin-bottom: 1.5rem;
+        color: var(--hacker-green);
+        border-bottom: 1px solid #333;
         padding-bottom: 0.75rem;
-        border-bottom: 1px solid #edf2f7;
-    }
-    
-    .dark-theme .section-title {
-        color: #e2e8f0;
-        border-bottom-color: #4a5568;
+        margin-bottom: 1.5rem;
+        font-weight: bold;
+        letter-spacing: 1px;
     }
     
     .form-label {
-        font-weight: 500;
-        color: #4a5568;
+        color: var(--hacker-green);
         margin-bottom: 0.5rem;
-        display: block;
+        font-weight: bold;
     }
-    
-    .dark-theme .form-label {
-        color: #cbd5e0;
-    }
-    
+
     .form-control, .form-select, .form-control-file {
-        border-radius: 8px;
+        background: var(--hacker-card);
+        border: 1px solid #444;
+        color: var(--hacker-text);
+        border-radius: 0;
         padding: 0.75rem 1rem;
-        border: 1px solid #e2e8f0;
         transition: all 0.3s;
-        width: 100%;
-        background-color: white;
-    }
-    
-    .dark-theme .form-control,
-    .dark-theme .form-select,
-    .dark-theme .form-control-file {
-        background-color: #4a5568;
-        border-color: #4a5568;
-        color: #f7fafc;
     }
     
     .form-control:focus, .form-select:focus {
-        border-color: #667eea;
-        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        border-color: var(--hacker-green);
+        box-shadow: 0 0 0 3px rgba(0, 255, 0, 0.1);
+        color: var(--hacker-text);
+        background: var(--hacker-card);
+        outline: none;
+    }
+
+    textarea.form-control {
+        min-height: 120px;
+        resize: vertical;
     }
     
-    .dark-theme .form-control:focus,
-    .dark-theme .form-select:focus {
-        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.3);
+    .form-text {
+        color: #666;
+        font-size: 0.875rem;
     }
-    
-    /* Стили для аватара */
-    .avatar-section {
-        margin-bottom: 2rem;
-    }
-    
+
     .avatar-container {
         display: flex;
         flex-wrap: wrap;
@@ -109,14 +91,10 @@
         width: 150px;
         height: 150px;
         object-fit: cover;
-        border-radius: 12px;
-        border: 2px solid #edf2f7;
-        background-color: #f7fafc;
-    }
-    
-    .dark-theme .avatar-preview {
-        border-color: #4a5568;
-        background-color: #4a5568;
+        border-radius: 0;
+        border: 1px solid var(--hacker-green);
+        background: var(--hacker-darker);
+        box-shadow: 0 0 10px var(--matrix-green);
     }
     
     .avatar-upload-container {
@@ -124,57 +102,26 @@
         min-width: 300px;
     }
     
-    .avatar-upload-label {
-        display: block;
-        margin-bottom: 1rem;
-    }
-    
-    .current-avatar-info {
-        font-size: 0.9rem;
-        color: #718096;
-        margin-bottom: 1rem;
-        word-break: break-all;
-    }
-    
-    .dark-theme .current-avatar-info {
-        color: #a0aec0;
-    }
-    
     .custom-file-upload {
         display: inline-block;
         padding: 0.75rem 1.5rem;
-        background-color: #f7fafc;
-        color: #4a5568;
-        border: 1px solid #e2e8f0;
-        border-radius: 8px;
+        background: transparent;
+        color: var(--hacker-green);
+        border: 1px dashed var(--hacker-green);
         cursor: pointer;
         transition: all 0.3s;
-        font-weight: 500;
         margin-bottom: 1rem;
     }
     
     .custom-file-upload:hover {
-        background-color: #edf2f7;
-    }
-    
-    .dark-theme .custom-file-upload {
-        background-color: #4a5568;
-        color: #f7fafc;
-        border-color: #4a5568;
-    }
-    
-    .dark-theme .custom-file-upload:hover {
-        background-color: #2d3748;
+        background: rgba(0, 255, 0, 0.05);
+        border: 1px solid var(--hacker-green);
     }
     
     .file-name {
         margin-left: 1rem;
         font-size: 0.9rem;
-        color: #718096;
-    }
-    
-    .dark-theme .file-name {
-        color: #a0aec0;
+        color: #666;
     }
     
     .avatar-clear-container {
@@ -186,26 +133,10 @@
     
     .avatar-clear-label {
         font-size: 0.9rem;
-        color: #718096;
+        color: #666;
         cursor: pointer;
     }
-    
-    .dark-theme .avatar-clear-label {
-        color: #a0aec0;
-    }
-    
-    /* Поле "О себе" */
-    .bio-section {
-        margin-bottom: 2rem;
-    }
-    
-    .bio-textarea {
-        width: 100%;
-        min-height: 150px;
-        resize: vertical;
-    }
-    
-    /* Кнопки */
+
     .action-buttons {
         display: flex;
         justify-content: flex-end;
@@ -213,90 +144,100 @@
         margin-top: 2rem;
     }
     
-    .btn-save {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        border: none;
+    .btn-hack-save {
+        background: transparent;
+        color: var(--hacker-green);
+        border: 1px solid var(--hacker-green);
         padding: 0.75rem 1.5rem;
-        font-weight: 500;
+        font-weight: bold;
         transition: all 0.3s;
-        color: white;
-        border-radius: 8px;
+        position: relative;
+        overflow: hidden;
     }
     
-    .btn-save:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
-        color: white;
+    .btn-hack-save::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(0, 255, 0, 0.2), transparent);
+        transition: 0.5s;
     }
     
-    .btn-cancel {
-        background-color: #f7fafc;
-        color: #4a5568;
-        border: 1px solid #e2e8f0;
+    .btn-hack-save:hover::before {
+        left: 100%;
+    }
+    
+    .btn-hack-save:hover {
+        background: var(--hacker-green);
+        color: #000;
+        box-shadow: 0 0 10px var(--matrix-green);
+    }
+    
+    .btn-hack-cancel {
+        background: transparent;
+        color: #ccc;
+        border: 1px dashed #666;
         padding: 0.75rem 1.5rem;
-        font-weight: 500;
+        font-weight: bold;
         transition: all 0.3s;
-        border-radius: 8px;
     }
     
-    .btn-cancel:hover {
-        background-color: #edf2f7;
-        color: #2d3748;
+    .btn-hack-cancel:hover {
+        color: var(--hacker-text);
+        border: 1px solid #666;
+        background: rgba(255, 255, 255, 0.05);
     }
-    
-    .dark-theme .btn-cancel {
-        background-color: #4a5568;
-        color: #f7fafc;
-        border-color: #4a5568;
-    }
-    
-    .dark-theme .btn-cancel:hover {
-        background-color: #2d3748;
-    }
-    
-    /* Ошибки */
+
     .error-feedback {
-        color: #e53e3e;
+        color: #ff5555;
         font-size: 0.875rem;
         margin-top: 0.25rem;
+        text-shadow: 0 0 5px rgba(255, 85, 85, 0.5);
     }
-    
-    .form-text {
-        font-size: 0.875rem;
-        color: #718096;
-    }
-    
-    .dark-theme .form-text {
-        color: #a0aec0;
+
+    .hr-hacker {
+        border: 0;
+        height: 1px;
+        background: linear-gradient(to right, transparent, var(--hacker-green), transparent);
+        opacity: 0.25;
+        margin: 1.5rem 0;
     }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="container py-5">
+<div class="container py-5 profile-edit-container">
     <div class="row justify-content-center">
         <div class="col-lg-8">
-            <div class="card profile-edit-card">
-                <div class="card-header profile-edit-header">
-                    <h1 class="profile-edit-title">
-                        <i class="bi bi-person-gear me-2"></i>Редактирование профиля
+            <div class="hacker-form-card">
+                <div class="hacker-form-header">
+                    <h1 class="hacker-form-title">
+                        <i class="bi bi-terminal me-2"></i>РЕДАКТИРОВАНИЕ ПРОФИЛЯ
                     </h1>
                 </div>
                 
-                <div class="card-body profile-edit-body">
+                <div class="hacker-form-body">
                     <form method="POST" enctype="multipart/form-data" class="needs-validation" novalidate>
                         {% csrf_token %}
 
                         <h4 class="section-title">
-                            <i class="bi bi-person-vcard me-2"></i>Основная информация
+                            <i class="bi bi-person-lines-fill me-2"></i>ОСНОВНАЯ ИНФОРМАЦИЯ
                         </h4>
                         
                         <div class="row g-3 mb-4">
                             <div class="col-md-6">
                                 <label for="{{ user_form.username.id_for_label }}" class="form-label">
-                                    Имя пользователя
+                                    ИМЯ ПОЛЬЗОВАТЕЛЯ
                                 </label>
-                                {{ user_form.username }}
+                                <input type="text" 
+                                    class="form-control" 
+                                    id="{{ user_form.username.id_for_label }}" 
+                                    name="{{ user_form.username.name }}" 
+                                    value="{{ user_form.username.value|default:'' }}"
+                                    required>
                                 {% if user_form.username.errors %}
                                     <div class="error-feedback">
                                         {{ user_form.username.errors.as_text }}
@@ -307,9 +248,14 @@
                             
                             <div class="col-md-6">
                                 <label for="{{ user_form.email.id_for_label }}" class="form-label">
-                                    Email
+                                    EMAIL
                                 </label>
-                                {{ user_form.email }}
+                                <input type="email" 
+                                    class="form-control" 
+                                    id="{{ user_form.email.id_for_label }}" 
+                                    name="{{ user_form.email.name }}" 
+                                    value="{{ user_form.email.value|default:'' }}"
+                                    required>
                                 {% if user_form.email.errors %}
                                     <div class="error-feedback">
                                         {{ user_form.email.errors.as_text }}
@@ -321,23 +267,31 @@
                         <div class="row g-3 mb-4">
                             <div class="col-md-6">
                                 <label for="{{ user_form.first_name.id_for_label }}" class="form-label">
-                                    Имя
+                                    ИМЯ
                                 </label>
-                                {{ user_form.first_name }}
+                                <input type="text" 
+                                    class="form-control" 
+                                    id="{{ user_form.first_name.id_for_label }}" 
+                                    name="{{ user_form.first_name.name }}" 
+                                    value="{{ user_form.first_name.value|default:'' }}">
                             </div>
                             
                             <div class="col-md-6">
                                 <label for="{{ user_form.last_name.id_for_label }}" class="form-label">
-                                    Фамилия
+                                    ФАМИЛИЯ
                                 </label>
-                                {{ user_form.last_name }}
+                                <input type="text" 
+                                    class="form-control" 
+                                    id="{{ user_form.last_name.id_for_label }}" 
+                                    name="{{ user_form.last_name.name }}" 
+                                    value="{{ user_form.last_name.value|default:'' }}">
                             </div>
                         </div>
                         
-                        <hr class="my-4">
+                        <div class="hr-hacker"></div>
 
                         <h4 class="section-title">
-                            <i class="bi bi-image me-2"></i>Фото профиля
+                            <i class="bi bi-image me-2"></i>ФОТО ПРОФИЛЯ
                         </h4>
                         
                         <div class="avatar-section">
@@ -349,19 +303,19 @@
                                 {% endif %}
                                 
                                 <div class="avatar-upload-container">
-                                    <label class="form-label">Загрузить новое фото</label>
+                                    <label class="form-label">ЗАГРУЗИТЬ НОВОЕ ФОТО</label>
                                     
                                     <div class="mb-3">
                                         <label for="avatarUpload" class="custom-file-upload">
-                                            <i class="bi bi-upload me-1"></i>Выбрать файл
+                                            <i class="bi bi-upload me-1"></i>ВЫБРАТЬ ФАЙЛ
                                         </label>
                                         <span class="file-name" id="fileName">Файл не выбран</span>
                                         <input type="file" name="avatar" id="avatarUpload" class="d-none" accept="image/*">
                                     </div>
                                     
                                     {% if user.profile.avatar %}
-                                    <div class="current-avatar-info">
-                                        На данный момент: {{ user.profile.avatar.name|truncatechars:30 }}
+                                    <div class="current-avatar-info text-muted">
+                                        Текущий файл: {{ user.profile.avatar.name|truncatechars:30 }}
                                     </div>
                                     
                                     <div class="avatar-clear-container">
@@ -375,26 +329,29 @@
                             </div>
                         </div>
                         
-                        <hr class="my-4">
+                        <div class="hr-hacker"></div>
                         
                         <h4 class="section-title">
-                            <i class="bi bi-file-text me-2"></i>О себе
+                            <i class="bi bi-file-text me-2"></i>О СЕБЕ
                         </h4>
                         
                         <div class="bio-section">
                             <label for="{{ profile_form.bio.id_for_label }}" class="form-label">
-                                Расскажите о себе
+                                РАССКАЖИТЕ О СЕБЕ
                             </label>
-                            {{ profile_form.bio }}
+                            <textarea class="form-control" 
+                                    id="{{ profile_form.bio.id_for_label }}" 
+                                    name="{{ profile_form.bio.name }}" 
+                                    rows="4">{{ profile_form.bio.value|default:'' }}</textarea>
                             <div class="form-text">Необязательное поле (максимум 500 символов)</div>
                         </div>
                         
                         <div class="action-buttons">
-                            <a href="{% url 'users:profile' %}" class="btn btn-cancel">
-                                <i class="bi bi-x-lg me-1"></i>Отмена
+                            <a href="{% url 'users:profile' %}" class="btn btn-hack-cancel">
+                                <i class="bi bi-x-lg me-1"></i>ОТМЕНА
                             </a>
-                            <button type="submit" class="btn btn-save">
-                                <i class="bi bi-check-lg me-1"></i>Сохранить изменения
+                            <button type="submit" class="btn btn-hack-save">
+                                <i class="bi bi-check-lg me-1"></i>СОХРАНИТЬ
                             </button>
                         </div>
                     </form>
@@ -405,43 +362,55 @@
 </div>
 
 <script>
-document.getElementById('avatarUpload').addEventListener('change', function(e) {
-    const fileNameElement = document.getElementById('fileName');
-    const previewElement = document.getElementById('avatarPreview');
-    
-    if (this.files && this.files[0]) {
-        fileNameElement.textContent = this.files[0].name;
-        
-        const reader = new FileReader();
-        
-        reader.onload = function(e) {
-            if (!previewElement) {
-                const previewContainer = document.querySelector('.avatar-preview-container');
-                if (previewContainer) {
-                    const img = document.createElement('img');
-                    img.id = 'avatarPreview';
-                    img.className = 'avatar-preview';
-                    img.src = e.target.result;
-                    previewContainer.appendChild(img);
-                }
-            } else {
-                previewElement.src = e.target.result;
-            }
-        }
-        
-        reader.readAsDataURL(this.files[0]);
-    } else {
-        fileNameElement.textContent = 'Файл не выбран';
-    }
-});
-
 document.addEventListener('DOMContentLoaded', function() {
     const avatarInput = document.getElementById('avatarUpload');
     const fileNameElement = document.getElementById('fileName');
+    const previewElement = document.getElementById('avatarPreview');
     
-    if (avatarInput && fileNameElement && avatarInput.files.length > 0) {
-        fileNameElement.textContent = avatarInput.files[0].name;
+    if (avatarInput) {
+        avatarInput.addEventListener('change', function(e) {
+            if (this.files && this.files[0]) {
+                fileNameElement.textContent = this.files[0].name;
+                
+                const reader = new FileReader();
+                
+                reader.onload = function(e) {
+                    if (!previewElement) {
+                        const previewContainer = document.querySelector('.avatar-preview-container');
+                        if (previewContainer) {
+                            const img = document.createElement('img');
+                            img.id = 'avatarPreview';
+                            img.className = 'avatar-preview';
+                            img.src = e.target.result;
+                            previewContainer.appendChild(img);
+                        }
+                    } else {
+                        previewElement.src = e.target.result;
+                    }
+                }
+                
+                reader.readAsDataURL(this.files[0]);
+            } else {
+                fileNameElement.textContent = 'Файл не выбран';
+            }
+        });
+        
+        if (fileNameElement && avatarInput.files.length > 0) {
+            fileNameElement.textContent = avatarInput.files[0].name;
+        }
     }
+
+    document.querySelectorAll('input, textarea, select').forEach(el => {
+        el.addEventListener('focus', function() {
+            this.style.boxShadow = '0 0 10px var(--matrix-green)';
+            this.style.borderColor = 'var(--hacker-green)';
+        });
+        
+        el.addEventListener('blur', function() {
+            this.style.boxShadow = 'none';
+            this.style.borderColor = '#444';
+        });
+    });
 });
 </script>
 {% endblock %}

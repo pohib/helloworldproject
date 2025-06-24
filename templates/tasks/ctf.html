@@ -1,0 +1,99 @@
+{% extends 'base.html' %}
+
+{% block breadcrumbs %}
+<nav aria-label="breadcrumb" class="hacker-breadcrumb">
+    <ol class="breadcrumb bg-transparent">
+        <li class="breadcrumb-item"><a href="{% url 'home' %}" class="hacker-link">Главная</a></li>
+        <li class="breadcrumb-item"><a href="{{ task.lecture.course.get_absolute_url }}" class="hacker-link">{{ task.lecture.course.title }}</a></li>
+        <li class="breadcrumb-item"><a href="{{ task.lecture.get_absolute_url }}" class="hacker-link">{{ task.lecture.title }}</a></li>
+        <li class="breadcrumb-item active text-hacker" aria-current="page">{{ task.title }}</li>
+    </ol>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="hacker-card p-4 mb-4 border-danger">
+        <div class="task-header">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h1 class="text-hacker mb-0"><i class="bi bi-shield-lock me-2"></i>{{ task.title }}</h1>
+                <span class="badge bg-danger">{{ task.get_task_type_display }}</span>
+            </div>
+            <div class="d-flex flex-wrap gap-2 align-items-center mb-3">
+                <span class="text-muted"><i class="bi bi-clock me-1"></i> {{ task.lecture.duration }} мин</span>
+                <span class="text-muted"><i class="bi bi-star me-1"></i> {{ task.max_score }} XP</span>
+                <span class="text-muted"><i class="bi bi-flag me-1"></i> Формат: FLAG{...}</span>
+            </div>
+        </div>
+
+        <div class="task-content p-3 mb-4 terminal-like">
+            {{ task.description|safe }}
+            
+            <div class="alert alert-danger mt-3">
+                <i class="bi bi-exclamation-triangle me-2"></i>
+                <strong>Внимание!</strong> Флаг чувствителен к регистру и должен быть введен точно, включая FLAG{}
+            </div>
+        </div>
+
+        <form method="post" class="hacker-form">
+            {% csrf_token %}
+            <div class="input-group mb-3">
+                <span class="input-group-text bg-dark text-danger border-danger">
+                    <i class="bi bi-flag"></i>
+                </span>
+                <input type="text" name="flag" class="form-control hacker-input" 
+                    placeholder="Введите флаг в формате FLAG{...}" required>
+                <button class="btn btn-hack-danger" type="submit">
+                    <i class="bi bi-send me-1"></i> Проверить
+                </button>
+            </div>
+        </form>
+
+        <div class="task-footer text-end">
+            <button type="button" class="btn btn-hack-outline btn-sm" data-bs-toggle="modal" data-bs-target="#hintModal">
+                <i class="bi bi-lightbulb me-1"></i> Нужна подсказка?
+            </button>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="hintModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content bg-dark border-danger">
+            <div class="modal-header border-danger">
+                <h5 class="modal-title text-danger"><i class="bi bi-lightbulb me-2"></i>Подсказка</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Попробуйте проанализировать все предоставленные материалы. Флаг может быть скрыт в:</p>
+                <ul>
+                    <li>Исходном коде страницы</li>
+                    <li>Метаданных файлов</li>
+                    <li>Заголовках HTTP-ответов</li>
+                    <li>Неочевидных местах описания задания</li>
+                </ul>
+            </div>
+            <div class="modal-footer border-danger">
+                <button type="button" class="btn btn-hack-outline" data-bs-dismiss="modal">Закрыть</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.hacker-input {
+    background-color: #0c0c0c;
+    border: 1px solid #dc3545;
+    color: #fff;
+}
+
+.hacker-input:focus {
+    background-color: #0c0c0c;
+    color: #fff;
+    border-color: #dc3545;
+    box-shadow: 0 0 0 0.25rem rgba(220, 53, 69, 0.25);
+}
+</style>
+{% endblock %}

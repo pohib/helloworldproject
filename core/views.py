@@ -7,20 +7,44 @@ from django.contrib.auth.decorators import login_required
 from django.utils import timezone
 from django.core.validators import validate_email
 from django.core.exceptions import ValidationError
-from .models import Course, Lecture, Test, Question, Answer, UserProgress, UserTestResult, Feedback, Task
-from .forms import TestSubmissionForm, CodeTaskForm, CTFFlagForm, LectureCommentForm
+from .models import Course, Lecture, Test, Question, Answer, UserProgress, UserTestResult, Feedback, Task, Comment, TaskResponse
+from .forms import TestSubmissionForm, CodeTaskForm, CTFFlagForm, CommentForm, TaskResponseForm
 import requests
+from django.contrib import messages
 
 def home(request):
-    courses = Course.objects.filter(is_active=True).order_by('order')
-    return render(request, 'home.html', {'courses': courses})
+    course = Course.objects.filter(is_active=True).first()
+    return render(request, 'home.html', {'course': course})
 
 def course_detail(request, slug):
     course = get_object_or_404(Course, slug=slug, is_active=True)
     lectures = course.lectures.filter(is_published=True).order_by('order')
+    
+    if request.user.is_authenticated:
+        completed_lectures = UserProgress.objects.filter(
+            user=request.user,
+            lecture__in=lectures,
+            completed=True
+        ).values_list('lecture_id', flat=True)
+        
+        next_lecture = None
+        for lecture in lectures:
+            if lecture.id not in completed_lectures:
+                next_lecture = lecture
+                break
+        
+        if not next_lecture and lectures:
+            next_lecture = lectures.first()
+    else:
+        completed_lectures = []
+        next_lecture = None
+    
     return render(request, 'course_detail.html', {
         'course': course,
-        'lectures': lectures
+        'lectures': lectures,
+        'completed_lecture_ids': completed_lectures,
+        'next_lecture': next_lecture,
+        'completed_lectures_count': len(completed_lectures),
     })
 
 @login_required
@@ -45,57 +69,147 @@ def lecture_detail(request, course_slug, lecture_slug):
     
     tasks = lecture.tasks.all().order_by('order')
     tests = lecture.tests.filter(is_published=True)
-    comment_form = LectureCommentForm()
+
+    comment_form = CommentForm()
+    reply_form = None
     
-    if request.method == 'POST' and 'comment' in request.POST:
-        comment_form = LectureCommentForm(request.POST)
-        if comment_form.is_valid():
-            pass
+    comments = Comment.objects.filter(
+        lecture=lecture,
+        parent__isnull=True
+    ).select_related('author').prefetch_related('replies__author')
+    
+    if request.method == 'POST':
+        form_type = request.POST.get('form_type')
+        
+        if form_type == 'comment':
+            comment_form = CommentForm(request.POST)
+            if comment_form.is_valid():
+                comment = comment_form.save(commit=False)
+                comment.lecture = lecture
+                comment.author = request.user
+                comment.save()
+                messages.success(request, 'Комментарий добавлен')
+                return redirect(comment.get_absolute_url())
+        
+        elif form_type == 'reply':
+            parent_id = request.POST.get('parent_id')
+            try:
+                parent_comment = Comment.objects.get(id=parent_id, lecture=lecture)
+                reply_form = CommentForm(request.POST)
+                if reply_form.is_valid():
+                    reply = reply_form.save(commit=False)
+                    reply.lecture = lecture
+                    reply.author = request.user
+                    reply.parent = parent_comment
+                    reply.save()
+                    messages.success(request, 'Ответ добавлен')
+                    return redirect(reply.get_absolute_url())
+                else:
+                    messages.error(request, 'Ошибка при отправке ответа')
+            except Comment.DoesNotExist:
+                messages.error(request, 'Родительский комментарий не найден')
     
     return render(request, 'lecture_detail.html', {
         'lecture': lecture,
         'tasks': tasks,
         'tests': tests,
+        'comments': comments,
         'comment_form': comment_form,
+        'reply_form': reply_form if reply_form else CommentForm(),
         'user_progress': progress
+    })
+
+@login_required
+def delete_comment(request, comment_id):
+    comment = get_object_or_404(Comment, id=comment_id)
+    
+    if comment.author != request.user and not request.user.is_staff:
+        messages.error(request, 'Вы не можете удалить этот комментарий')
+        return redirect(comment.lecture.get_absolute_url())
+    
+    if request.method == 'POST':
+        lecture_url = comment.lecture.get_absolute_url()
+        comment.delete()
+        messages.success(request, 'Комментарий удален')
+        return redirect(lecture_url)
+    
+    return render(request, 'confirm_delete.html', {
+        'comment': comment,
+        'lecture': comment.lecture
     })
 
 @login_required
 def test_detail(request, test_id):
     test = get_object_or_404(Test, id=test_id, is_published=True)
     questions = test.questions.all().order_by('order').prefetch_related('answers')
+    max_score = sum(q.points for q in questions)
     
-    if request.method == 'POST':
+    existing_result = UserTestResult.objects.filter(user=request.user, test=test).first()
+    
+    if request.method == 'POST' and (not existing_result or request.GET.get('retry')):
         form = TestSubmissionForm(request.POST, questions=questions)
         if form.is_valid():
             score = 0
-            total_questions = questions.count()
-            for question in questions:
-                answer_id = form.cleaned_data.get(f'question_{question.id}')
-                if answer_id:
-                    answer = Answer.objects.get(id=answer_id)
-                    if answer.is_correct:
-                        score += 1
+            details = {}
+            correct_answers = 0
             
-            UserTestResult.objects.create(
+            for question in questions:
+                field_name = f'question_{question.id}'
+                answer = form.cleaned_data.get(field_name)
+                details[str(question.id)] = {
+                    'question': question.text,
+                    'answer_id': str(answer.id) if answer else None,
+                    'is_correct': False
+                }
+                
+                if answer:
+                    details[str(question.id)]['answer_text'] = answer.text
+                    
+                    if answer.is_correct:
+                        score += question.points
+                        correct_answers += 1
+                        details[str(question.id)]['is_correct'] = True
+                        details[str(question.id)]['correct_answer'] = answer.text
+                    else:
+                        correct_answer = question.answers.filter(is_correct=True).first()
+                        details[str(question.id)]['correct_answer'] = correct_answer.text if correct_answer else ""
+                else:
+                    details[str(question.id)]['error'] = "Ответ не выбран"
+            
+            result, created = UserTestResult.objects.update_or_create(
                 user=request.user,
                 test=test,
-                score=score
+                defaults={
+                    'score': score,
+                    'details': details,
+                    'is_passed': score >= (test.passing_score / 100) * max_score
+                }
             )
             
             return render(request, 'test_result.html', {
                 'test': test,
+                'result': result,
                 'score': score,
-                'total_questions': total_questions
+                'max_score': max_score,
+                'correct_answers': correct_answers,
+                'total_questions': questions.count(),
+                'percentage': round(score / max_score * 100) if max_score > 0 else 0,
+                'passing_score_points': (test.passing_score / 100) * max_score
             })
     else:
         form = TestSubmissionForm(questions=questions)
     
-    return render(request, 'test_detail.html', {
+    context = {
         'test': test,
-        'form': form
-    })
-
+        'form': form,
+        'existing_result': existing_result,
+        'max_score': max_score,
+    }
+    
+    if existing_result:
+        context['percentage'] = round(existing_result.score / max_score * 100) if max_score > 0 else 0
+    
+    return render(request, 'test_detail.html', context)
 @login_required
 def code_task(request, task_id):
     task = get_object_or_404(Task, id=task_id, task_type='code')
@@ -142,54 +256,7 @@ def ctf_task(request, task_id):
         'form': form
     })
 
-@login_required
-def task_detail(request, task_id):
-    task = get_object_or_404(Task, id=task_id)
-    lecture = task.lecture
-    
-    if not request.user.is_staff and (not lecture.is_published or not lecture.course.is_active):
-        raise Http404("Задание не найдено")
-    
-    template_map = {
-        'quiz': 'tasks/quiz.html',
-        'code': 'tasks/code.html',
-        'ctf': 'tasks/ctf.html',
-        'theory': 'tasks/theory.html',
-    }
-    
-    template_name = template_map.get(task.task_type, 'tasks/theory.html')
-    
-    forms = {
-        'code': CodeTaskForm(),
-        'ctf': CTFFlagForm(),
-    }
-    
-    form = forms.get(task.task_type)
-    
-    if request.method == 'POST':
-        if task.task_type == 'code':
-            form = CodeTaskForm(request.POST)
-            if form.is_valid():
-                return JsonResponse({'success': True})
-        
-        elif task.task_type == 'ctf':
-            form = CTFFlagForm(request.POST)
-            if form.is_valid():
-                is_correct = form.cleaned_data['flag'] == task.flag
-                if is_correct:
-                    UserProgress.objects.update_or_create(
-                        user=request.user,
-                        lecture=lecture,
-                        defaults={'completed': True, 'completed_at': timezone.now()}
-                    )
-                return JsonResponse({'success': True, 'is_correct': is_correct})
-    
-    return render(request, template_name, {
-        'task': task,
-        'lecture': lecture,
-        'form': form,
-    })
-    
+
 def lecture_html_view(request, course_slug, lecture_slug):
     lecture = get_object_or_404(
         Lecture,
@@ -265,3 +332,32 @@ def contact_view(request):
             return JsonResponse({'success': False, 'error': str(e)})
     
     return JsonResponse({'success': False, 'error': 'Неверный метод запроса'})
+
+@login_required
+def task_detail(request, task_id):
+    task = get_object_or_404(Task, id=task_id)
+    user_response = TaskResponse.objects.filter(task=task, user=request.user).first()
+    
+    if request.method == 'POST':
+        form = TaskResponseForm(request.POST)
+        if form.is_valid():
+            answer = form.cleaned_data['answer']
+            TaskResponse.objects.update_or_create(
+                task=task,
+                user=request.user,
+                defaults={
+                    'answer': answer,
+                    'is_checked': False
+                }
+            )
+            messages.success(request, 'Ваш ответ успешно сохранен!')
+            return redirect('task_detail', task_id=task.id)
+    else:
+        initial_data = {'answer': user_response.answer if user_response else ''}
+        form = TaskResponseForm(initial=initial_data)
+    
+    return render(request, 'tasks/theory.html', {
+        'task': task,
+        'user_response': user_response,
+        'form': form
+    })

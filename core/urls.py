@@ -8,4 +8,5 @@ urlpatterns = [
     path('courses/<slug:course_slug>/<slug:lecture_slug>/html/', views.lecture_html_view, name='lecture_html'),
     path('tests/<int:test_id>/', views.test_detail, name='test_detail'),
     path('tasks/<int:task_id>/', views.task_detail, name='task_detail'),
+    path('comments/<int:comment_id>/delete/', views.delete_comment, name='delete_comment'),
 ]

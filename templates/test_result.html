@@ -1,0 +1,173 @@
+{% extends 'base.html' %}
+
+{% block breadcrumbs %}
+<nav aria-label="breadcrumb" class="hacker-breadcrumb">
+    <ol class="breadcrumb bg-transparent">
+        <li class="breadcrumb-item"><a href="{% url 'home' %}" class="hacker-link">Главная</a></li>
+        <li class="breadcrumb-item"><a href="{{ test.lecture.course.get_absolute_url }}" class="hacker-link">{{ test.lecture.course.title }}</a></li>
+        <li class="breadcrumb-item"><a href="{{ test.lecture.get_absolute_url }}" class="hacker-link">{{ test.lecture.title }}</a></li>
+        <li class="breadcrumb-item active text-hacker" aria-current="page">Результаты теста</li>
+    </ol>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="hacker-card p-4 mb-4 {% if result.is_passed %}border-success{% else %}border-danger{% endif %}">
+        <div class="test-result-header text-center mb-4">
+            <h1 class="text-hacker">
+                <i class="bi bi-{% if result.is_passed %}check-circle{% else %}x-circle{% endif %} me-2"></i>
+                Результаты теста: {{ test.title }}
+            </h1>
+            
+            <div class="result-score display-4 {% if result.is_passed %}text-success{% else %}text-danger{% endif %}">
+                {{ score }} из {{ max_score }} баллов
+            </div>
+            
+            <div class="progress-container mt-4 mb-3">
+                <div class="d-flex justify-content-between mb-2">
+                    <span>Прогресс:</span>
+                    <span>{{ percentage }}%</span>
+                </div>
+                <div class="progress" style="height: 20px;">
+                    <div class="progress-bar {% if result.is_passed %}bg-success{% else %}bg-danger{% endif %}" 
+                        role="progressbar" 
+                        style="width: {{ percentage }}%" 
+                        aria-valuenow="{{ score }}" 
+                        aria-valuemin="0" 
+                        aria-valuemax="{{ max_score }}">
+                    </div>
+                </div>
+            </div>
+
+            <div class="result-summary">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="d-flex align-items-center mb-2">
+                            <i class="bi bi-check-circle-fill text-success me-2"></i>
+                            <span>Правильных ответов: {{ correct_answers }} из {{ total_questions }}</span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="d-flex align-items-center mb-2">
+                            <i class="bi bi-flag-fill text-warning me-2"></i>
+                            <span>Проходной балл: {{ test.passing_score }}% ({{ passing_score_points|floatformat }} из {{ max_score }})</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="test-details mt-4">
+            <h3 class="text-hacker mb-3"><i class="bi bi-list-check me-2"></i>Подробные результаты:</h3>
+            
+            {% for question_id, detail in result.details.items %}
+            <div class="question-result mb-3 p-3 {% if detail.is_correct %}bg-success-20{% else %}bg-danger-20{% endif %}">
+                <div class="d-flex align-items-start">
+                    <div class="me-3">
+                        {% if detail.is_correct %}
+                        <i class="bi bi-check-circle-fill text-success fs-4"></i>
+                        {% else %}
+                        <i class="bi bi-x-circle-fill text-danger fs-4"></i>
+                        {% endif %}
+                    </div>
+                    <div class="flex-grow-1">
+                        <h5 class="mb-2">{{ detail.question|safe }}</h5>
+                        
+                        <div class="answer-result mb-2">
+                            <span class="fw-bold">Ваш ответ:</span>
+                            <span class="{% if detail.is_correct %}text-success{% else %}text-danger{% endif %}">
+                                {{ detail.answer_text|default:detail.answer_id|default:"Нет ответа" }}
+                            </span>
+                        </div>
+                        
+                        {% if not detail.is_correct %}
+                        <div class="correct-answer">
+                            <span class="fw-bold text-warning">Правильный ответ:</span>
+                            <span>{{ detail.correct_answer }}</span>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="test-actions text-center mt-4">
+            <a href="{{ test.lecture.get_absolute_url }}" class="btn btn-hack-outline me-2">
+                <i class="bi bi-arrow-left me-1"></i> Вернуться к лекции
+            </a>
+            <a href="{% url 'test_detail' test.id %}" class="btn btn-hack-warning">
+                <i class="bi bi-arrow-repeat me-1"></i> Пройти тест снова
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.test-result-header {
+    padding: 20px;
+    border-radius: 5px;
+    background: rgba(0, 0, 0, 0.3);
+}
+
+.result-score {
+    font-weight: bold;
+    text-shadow: 0 0 10px currentColor;
+    animation: pulse 1.5s infinite alternate;
+}
+
+.progress-container {
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+.question-result {
+    border-radius: 5px;
+    border-left: 4px solid;
+    transition: all 0.3s ease;
+}
+
+.question-result:hover {
+    transform: translateX(5px);
+}
+
+.bg-success-20 {
+    background-color: rgba(40, 167, 69, 0.1);
+    border-left-color: #28a745;
+}
+
+.bg-danger-20 {
+    background-color: rgba(220, 53, 69, 0.1);
+    border-left-color: #dc3545;
+}
+
+.answer-result, .correct-answer {
+    padding: 5px 10px;
+    border-radius: 3px;
+    background: rgba(0, 0, 0, 0.1);
+    display: inline-block;
+}
+
+@keyframes pulse {
+    from { transform: scale(1); }
+    to { transform: scale(1.05); }
+}
+
+.progress {
+    background-color: #0c0c0c;
+    border: 1px solid #333;
+}
+
+.progress-bar {
+    transition: width 1s ease-in-out;
+}
+
+.btn {
+    --bs-btn-color: #9b9b9b;
+}
+
+</style>
+{% endblock %}

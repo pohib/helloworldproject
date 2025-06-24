@@ -1,65 +1,174 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block extra_css %}
-<style>
-.container {
-    margin-left: 50px;
-}
-</style>
-{% endblock %}
-
 {% block content %}
-{% if not user.profile %}
-    <div class="alert alert-warning">Профиль не создан. Пожалуйста, сохраните изменения для создания профиля.</div>
-{% endif %}
 <div class="container mt-4">
+    {% if not user.profile %}
+    <div class="alert alert-hacker border-warning mb-4">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+        Профиль не был создан. Пожалуйста, сохраните изменения для создания профиля.
+    </div>
+    {% endif %}
+    
     <div class="row">
         <div class="col-md-4">
-            <div class="card mb-4">
-                <div class="card-body text-center">
-                    <img src="{% if user.profile.avatar %}{{ user.profile.avatar.url }}{% else %}{% static 'img/default-avatar.png' %}{% endif %}" 
-                            class="rounded-circle mb-3" width="150" height="150" alt="Аватар {{ user.username }}">
-                    <h4>{{ user.username }}</h4>
-                    <p class="text-muted">{{ user.email }}</p>
-                    
-                    <div class="d-grid gap-2 mt-3">
-                        <a href="{% url 'users:profile_edit' %}" class="btn btn-outline-primary">
-                            <i class="bi bi-pencil-square me-1"></i>Редактировать
-                        </a>
-                        {% if user.is_superuser %}
-                        <a href="{% url 'admin:index' %}" class="btn btn-outline-danger mt-2">
-                            <i class="bi bi-shield-lock me-1"></i>В админку
-                        </a>
-                        {% endif %}
-                    </div>
+            <div class="hacker-card mb-4 p-4 text-center">
+                <img src="{% if user.profile.avatar %}{{ user.profile.avatar.url }}{% else %}{% static 'img/default-avatar.png' %}{% endif %}" 
+                    class="rounded-circle mb-3 border border-success" 
+                    width="150" 
+                    height="150" 
+                    alt="Аватар {{ user.username }}"
+                    style="box-shadow: 0 0 15px var(--matrix-green);">
+                
+                <h4 class="text-success">{{ user.username }}</h4>
+                <p class="text-muted">{{ user.email }}</p>
+                
+                <div class="d-grid gap-2 mt-3">
+                    <a href="{% url 'users:profile_edit' %}" class="btn btn-hack-outline">
+                        <i class="bi bi-pencil-square me-1"></i>Редактировать
+                    </a>
+                    {% if user.is_superuser %}
+                    <a href="{% url 'admin:index' %}" class="btn btn-hack mt-2">
+                        <i class="bi bi-shield-lock me-1"></i>Админ-панель
+                    </a>
+                    {% endif %}
                 </div>
             </div>
         </div>
         
         <div class="col-md-8">
-            <div class="card">
-                <div class="card-header">
-                    <h5><i class="bi bi-info-circle me-2"></i>Информация профиля</h5>
+            <div class="hacker-card">
+                <div class="card-header bg-dark border-bottom border-success">
+                    <h5 class="m-0 text-success">
+                        <i class="bi bi-terminal me-2" style="margin-left: 10px"></i>
+                        <span class="typing-container">
+                            <span class="typing-text">Информация профиля</span>
+                            <span class="typing-cursor"></span>
+                        </span>
+                    </h5>
                 </div>
-                <div class="card-body">
-                    <div class="mb-3">
-                        <h6>О себе</h6>
-                        <p>{{ user.profile.bio|default:"Не указано" }}</p>
+                
+                <div class="card-body terminal-like">
+                    <div class="mb-4">
+                        <h6 class="text-success border-bottom border-success pb-2 d-inline-block">
+                            <i class="bi bi-person-lines-fill me-2"></i>О себе
+                        </h6>
+                        <p class="mt-2">{{ user.profile.bio|default:"<span class='text-muted'>Не указано</span>" }}</p>
                     </div>
                     
-                    <div class="mb-3">
-                        <h6>Дата регистрации</h6>
-                        <p>{{ user.date_joined|date:"d.m.Y H:i" }}</p>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <h6 class="text-success border-bottom border-success pb-2 d-inline-block">
+                                <i class="bi bi-calendar-plus me-2"></i>Дата регистрации
+                            </h6>
+                            <p class="mt-2">{{ user.date_joined|date:"d.m.Y H:i" }}</p>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <h6 class="text-success border-bottom border-success pb-2 d-inline-block">
+                                <i class="bi bi-clock-history me-2"></i>Последний вход
+                            </h6>
+                            <p class="mt-2">
+                                {% if user.last_login %}
+                                    {{ user.last_login|date:"d.m.Y H:i" }}
+                                {% else %}
+                                    <span class="text-muted">Никогда</span>
+                                {% endif %}
+                            </p>
+                        </div>
                     </div>
                     
-                    <div class="mb-3">
-                        <h6>Последний вход</h6>
-                        <p>{{ user.last_login|date:"d.m.Y H:i" }}</p>
+                    {% if user.profile %}
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <h6 class="text-success border-bottom border-success pb-2 d-inline-block">
+                                <i class="bi bi-github me-2"></i>GitHub
+                            </h6>
+                            <p class="mt-2">
+                                {% if user.profile.github %}
+                                    <a href="{{ user.profile.github }}" target="_blank" class="text-info">{{ user.profile.github }}</a>
+                                {% else %}
+                                    <span class="text-muted">Не указан</span>
+                                {% endif %}
+                            </p>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <h6 class="text-success border-bottom border-success pb-2 d-inline-block">
+                                <i class="bi bi-telegram me-2"></i>Telegram
+                            </h6>
+                            <p class="mt-2">
+                                {% if user.profile.telegram %}
+                                    @{{ user.profile.telegram }}
+                                {% else %}
+                                    <span class="text-muted">Не указан</span>
+                                {% endif %}
+                            </p>
+                        </div>
                     </div>
+                    {% endif %}
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<style>
+    .typing-container {
+        display: inline-flex;
+        align-items: center;
+    }
+    
+    .typing-text {
+        white-space: nowrap;
+        overflow: hidden;
+        animation: typing 1.5s steps(30, end);
+    }
+    
+    .typing-cursor {
+        display: inline-block;
+        width: 2px;
+        height: 1.2em;
+        background-color: var(--hacker-green);
+        margin-left: 4px;
+        animation: blink 1s step-end infinite;
+    }
+    
+    @keyframes typing {
+        from { width: 0 }
+        to { width: 100% }
+    }
+    
+    @keyframes blink {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0; }
+    }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const typingElements = document.querySelectorAll('.typing-text');
+    typingElements.forEach(el => {
+        const text = el.textContent;
+        el.textContent = '';
+        
+        let i = 0;
+        const typingInterval = setInterval(() => {
+            if (i < text.length) {
+                el.textContent += text.charAt(i);
+                i++;
+            } else {
+                clearInterval(typingInterval);
+                const cursor = el.nextElementSibling;
+                if (cursor && cursor.classList.contains('typing-cursor')) {
+                    cursor.style.animation = 'none';
+                    setTimeout(() => {
+                        cursor.style.display = 'none';
+                    }, 500);
+                }
+            }
+        }, 50);
+    });
+});
+</script>
 {% endblock %}

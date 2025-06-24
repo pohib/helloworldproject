@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="hacker-card p-4 mb-4">
+                <h2 class="text-success mb-4 typing-container">
+                    <span class="typing-text">Для преподавателей</span>
+                    <span class="typing-cursor"></span>
+                </h2>
+                
+                <div class="terminal-like mb-4">
+                    <p>> Загрузка информации для преподавателей...</p>
+                    <p>> Доступ к методическим материалам разрешен.</p>
+                </div>
+                
+                <h4 class="text-success mt-4"><i class="bi bi-mortarboard me-2"></i>Использование платформы в обучении</h4>
+                <p>pwnsch00l предоставляет уникальные возможности для интеграции в учебный процесс:</p>
+                
+                <div class="row mt-3">
+                    <div class="col-md-6 mb-3">
+                        <div class="hacker-card p-3 h-100 border-primary">
+                            <h5 class="text-primary"><i class="bi bi-collection me-2"></i>Готовые курсы</h5>
+                            <p>Создавайте свои курсы на нашем сайте по основам кибербезопасности.</p>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <div class="hacker-card p-3 h-100 border-primary">
+                            <h5 class="text-primary"><i class="bi bi-journal-check me-2"></i>Создание классов</h5>
+                            <p>Создавайте виртуальные классы и отслеживайте прогресс студентов.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <h4 class="text-success mt-4"><i class="bi bi-tools me-2"></i>Инструменты для преподавателей</h4>
+                <ul class="list-unstyled">
+                    <li class="mb-2"><i class="bi bi-check-square text-success me-2"></i>Генератор индивидуальных заданий</li>
+                    <li class="mb-2"><i class="bi bi-check-square text-success me-2"></i>Автоматическая проверка решений</li>
+                    <li class="mb-2"><i class="bi bi-check-square text-success me-2"></i>Аналитика успеваемости</li>
+                    <li class="mb-2"><i class="bi bi-check-square text-success me-2"></i>Методические материалы</li>
+                </ul>
+                
+                <div class="hacker-card p-3 mt-4 border-secondary">
+                    <h5 class="text-info"><i class="bi bi-info-circle me-2"></i>Как начать?</h5>
+                    <ol>
+                        <li class="mb-2">Зарегистрируйтесь на сайте</li>
+                        <li class="mb-2">Напишите нам на почту, либо свяжитесь через форму обратной связи</li>
+                        <li class="mb-2">Получите доступ к преподавательскому интерфейсу</li>
+                        <li class="mb-2">Создайте свой первый класс и пригласите учеников</li>
+                    </ol>
+                    <a href="{% url 'account_signup' %}" class="btn btn-hack mt-2">
+                        <i class="bi bi-person-plus me-1"></i>Зарегистрироваться
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -5,50 +5,174 @@
 <div class="container mt-5">
     <div class="row justify-content-center">
         <div class="col-md-8 col-lg-6">
-            <div class="card shadow-sm">
-                <div class="card-header bg-primary text-white">
-                    <h4 class="mb-0"><i class="bi bi-box-arrow-in-right me-2"></i>Вход в аккаунт</h4>
+            <div class="hacker-card">
+                <div class="card-header border-bottom border-success bg-dark">
+                    <h4 class="mb-0 text-success">
+                        <i class="bi bi-terminal me-2" style="margin-left: 10px;"></i>
+                        <span class="typing-container">
+                            <span class="typing-text">АВТОРИЗАЦИЯ</span>
+                            <span class="typing-cursor"></span>
+                        </span>
+                    </h4>
                 </div>
-                <div class="card-body">
+                <div class="card-body terminal-like">
                     <form method="POST" action="{% url 'account_login' %}">
                         {% csrf_token %}
+                        
                         {% if form.errors %}
-                            <div class="alert alert-danger">
-                                Пожалуйста, исправьте ошибки ниже.
+                            <div class="alert alert-hacker border-danger mb-4">
+                                <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                                Неверные учетные данные. Пожалуйста, попробуйте снова.
                             </div>
                         {% endif %}
                         
-                        <div class="mb-3">
-                            <label for="id_login" class="form-label">Email или имя пользователя</label>
-                            <input type="text" name="login" class="form-control" id="id_login" required>
+                        <div class="mb-4">
+                            <label for="id_login" class="form-label text-success">
+                                <i class="bi bi-person-fill me-1"></i>ЛОГИН
+                            </label>
+                            <input type="text" 
+                                name="login" 
+                                class="form-control hacker-input" 
+                                id="id_login" 
+                                required
+                                autofocus>
                         </div>
                         
-                        <div class="mb-3">
-                            <label for="id_password" class="form-label">Пароль</label>
-                            <input type="password" name="password" class="form-control" id="id_password" required>
+                        <div class="mb-4">
+                            <label for="id_password" class="form-label text-success">
+                                <i class="bi bi-lock-fill me-1"></i>ПАРОЛЬ
+                            </label>
+                            <input type="password" 
+                                name="password" 
+                                class="form-control hacker-input" 
+                                id="id_password" 
+                                required>
                         </div>
                         
-                        <div class="mb-3 form-check">
-                            <input type="checkbox" name="remember" class="form-check-input" id="id_remember">
-                            <label class="form-check-label" for="id_remember">Запомнить меня</label>
+                        <div class="mb-4 form-check">
+                            <input type="checkbox" 
+                                name="remember" 
+                                class="form-check-input hacker-checkbox" 
+                                id="id_remember">
+                            <label class="form-check-label text-muted" for="id_remember">
+                                Запомнить меня
+                            </label>
                         </div>
                         
                         <div class="d-grid gap-2">
-                            <button type="submit" class="btn btn-primary">
-                                <i class="bi bi-box-arrow-in-right me-1"></i>Войти
+                            <button type="submit" class="btn btn-hack">
+                                <i class="bi bi-box-arrow-in-right me-1"></i>ВОЙТИ В СИСТЕМУ
                             </button>
                         </div>
-                            {% include "users/includes/social_auth_buttons.html" %}
                     </form>
                     
-                    <div class="mt-3 text-center">
-                        <a href="{% url 'account_reset_password' %}">Забыли пароль?</a>
-                        <span class="mx-2">•</span>
-                        <a href="{% url 'account_signup' %}">Регистрация</a>
+                    <div class="mt-4 text-center">
+                        {% include "users/includes/social_auth_buttons.html" %}
+                    </div>
+                    
+                    <div class="mt-4 text-center border-top border-secondary pt-3">
+                        <a href="{% url 'account_reset_password' %}" class="text-muted hacker-link me-3">
+                            <i class="bi bi-key-fill me-1"></i>Восстановить пароль
+                        </a>
+                        <a href="{% url 'account_signup' %}" class="text-success hacker-link">
+                            <i class="bi bi-person-plus-fill me-1"></i>Регистрация
+                        </a>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<style>
+    .hacker-card {
+        background: var(--hacker-card);
+        border: 1px solid #333;
+        border-left: 3px solid var(--hacker-green);
+        box-shadow: 0 0 20px rgba(0, 255, 0, 0.1);
+    }
+    
+    .hacker-input {
+        background: var(--hacker-darker);
+        border: 1px solid #444;
+        color: var(--hacker-text);
+        border-radius: 0;
+        padding: 0.75rem 1rem;
+        transition: all 0.3s;
+    }
+    
+    .hacker-input:focus {
+        border-color: var(--hacker-green);
+        box-shadow: 0 0 0 3px rgba(0, 255, 0, 0.1);
+        color: var(--hacker-green);
+        background: var(--hacker-darker);
+        outline: none;
+    }
+    
+    .hacker-checkbox {
+        background: var(--hacker-darker);
+        border: 1px solid #444;
+    }
+    
+    .hacker-checkbox:checked {
+        background-color: var(--hacker-green);
+        border-color: var(--hacker-green);
+    }
+    
+    .hacker-link {
+        transition: all 0.3s;
+        text-decoration: none;
+    }
+    
+    .hacker-link:hover {
+        text-shadow: 0 0 5px var(--matrix-green);
+        color: var(--hacker-green) !important;
+    }
+    
+    .typing-container {
+        display: inline-flex;
+        align-items: center;
+    }
+    
+    .typing-text {
+        white-space: nowrap;
+        overflow: hidden;
+        animation: typing 1.5s steps(20, end);
+    }
+    
+    .typing-cursor {
+        display: inline-block;
+        width: 2px;
+        height: 1.2em;
+        background-color: var(--hacker-green);
+        margin-left: 4px;
+        animation: blink 1s step-end infinite;
+    }
+    
+    @keyframes typing {
+        from { width: 0 }
+        to { width: 100% }
+    }
+    
+    @keyframes blink {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0; }
+    }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.hacker-input').forEach(input => {
+        input.addEventListener('focus', function() {
+            this.style.boxShadow = '0 0 10px var(--matrix-green)';
+            this.style.borderColor = 'var(--hacker-green)';
+        });
+        
+        input.addEventListener('blur', function() {
+            this.style.boxShadow = 'none';
+            this.style.borderColor = '#444';
+        });
+    });
+});
+</script>
 {% endblock %}

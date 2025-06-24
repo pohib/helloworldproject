@@ -51,14 +51,14 @@ ACCOUNT_UNIQUE_EMAIL = True
 SOCIALACCOUNT_AUTO_SIGNUP = True 
 ACCOUNT_DEFAULT_HTTP_PROTOCOL = 'https' if not DEBUG else 'http'
 
-TELEGRAM_BOT_NAME = 'oauthdjango_bot'
-TELEGRAM_BOT_TOKEN = '7567724087:AAFeX8JZeT23DJsayatWhLcYZNdGpQleGN0'
+TELEGRAM_BOT_NAME = 'projectsite_bot'
+TELEGRAM_BOT_TOKEN = '7635912613:AAEnXeADRXJ3fdiqee5f8OFF6qpIxvBGrlY'
 TELEGRAM_LOGIN_REDIRECT_URL = '/profile/'
 TELEGRAM_LOGIN_REDIRECT_URL_FAIL = '/login/'
 TELEGRAM_LOGIN_SESSION_EXPIRATION = 86400
 
-RECAPTCHA_PUBLIC_KEY = '6LfBTF8rAAAAAMP4Gd56VKGGI4wJxXyC8R6GYJ2p'
-RECAPTCHA_PRIVATE_KEY = '6LfBTF8rAAAAANXxW53dCI4z3otqihAl_kT7iJIM'
+RECAPTCHA_PUBLIC_KEY = '6Ld2d2srAAAAAEV_IF2zpRsZWIQn7FlMi3vyfU_-'
+RECAPTCHA_PRIVATE_KEY = '6Ld2d2srAAAAAJjD-W7v4a7aa0ZeMn5rUvZ2aeRv'
 
 
 MEDIA_URL = '/media/'
@@ -190,14 +190,11 @@ USE_I18N = True
 
 USE_TZ = True
 
-
-CKEDITOR_5_CUSTOM_CSS = 'css/ckeditor5/admin_dark_mode_fix.css'
-
 STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'staticfiles'),
+    os.path.join(BASE_DIR, 'static'),
 ]
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
@@ -243,3 +240,5 @@ ACCOUNT_EMAIL_CONFIRMATION_TEMPLATE = "users/account/email/email_confirmation_me
 ACCOUNT_EMAIL_CONFIRMATION_SUBJECT = "users/account/email/email_confirmation_subject.txt"
 
 SECURE_CROSS_ORIGIN_OPENER_POLICY = "same-origin-allow-popups"
+
+ADMIN_SITE_HEADER = "Панель проверки заданий"

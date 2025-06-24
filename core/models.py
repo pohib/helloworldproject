@@ -299,7 +299,7 @@ class Answer(models.Model):
         ordering = ['order']
 
     def __str__(self):
-        return f"Ответ на вопрос #{self.question.order}"
+        return self.text
 
 
 class UserProgress(models.Model):
@@ -361,6 +361,14 @@ class UserTestResult(models.Model):
         _('Пройден успешно'),
         default=False
     )
+    
+    @property
+    def max_score(self):
+        return self.get_max_score()
+    
+    @property
+    def percentage(self):
+        return round(self.score / self.max_score * 100)
 
     class Meta:
         verbose_name = _('результат теста')
@@ -377,12 +385,59 @@ class UserTestResult(models.Model):
         super().save(*args, **kwargs)
 
     def get_max_score(self):
-        return sum(q.points for q in self.test.questions.all())
+        if not hasattr(self, '_max_score'):
+            self._max_score = sum(q.points for q in self.test.questions.all())
+        return self._max_score
 
     def __str__(self):
         return f"{self.user.username} - {self.test.title} ({self.score}/{self.get_max_score()})"
 
+class Comment(models.Model):
+    lecture = models.ForeignKey(
+        Lecture, 
+        on_delete=models.CASCADE, 
+        related_name='comments',
+        verbose_name=_('Лекция')
+    )
+    author = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='comments',
+        verbose_name=_('Автор')
+    )
+    parent = models.ForeignKey(
+        'self',
+        null=True,
+        blank=True,
+        on_delete=models.CASCADE,
+        related_name='replies',
+        verbose_name=_('Родительский комментарий')
+    )
+    text = models.TextField(_('Текст комментария'))
+    created_at = models.DateTimeField(_('Дата создания'), auto_now_add=True)
+    updated_at = models.DateTimeField(_('Дата обновления'), auto_now=True)
+    is_pinned = models.BooleanField(_('Закреплено'), default=False)
 
+    class Meta:
+        verbose_name = _('комментарий')
+        verbose_name_plural = _('Комментарии')
+        ordering = ['-is_pinned', 'created_at']
+        indexes = [
+            models.Index(fields=['lecture', 'parent']),
+        ]
+
+    def __str__(self):
+        return f'Комментарий от {self.author.username} к лекции "{self.lecture.title}"'
+
+    def clean(self):
+        if self.parent and self.parent.lecture != self.lecture:
+            raise ValidationError(
+                {'parent': 'Родительский комментарий должен относиться к той же лекции'}
+            )
+
+    def get_absolute_url(self):
+        return f"{self.lecture.get_absolute_url()}?comment={self.id}"
+    
 class Feedback(models.Model):
     name = models.CharField(_('Имя'), max_length=100)
     email = models.EmailField(_('Email'))
@@ -421,3 +476,20 @@ class Feedback(models.Model):
 
     def __str__(self):
         return f'Сообщение от {self.name} ({self.email})'
+
+class TaskResponse(models.Model):
+    task = models.ForeignKey(Task, on_delete=models.CASCADE, related_name='responses')
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    answer = models.TextField(verbose_name='Ответ ученика')
+    submitted_at = models.DateTimeField(auto_now_add=True)
+    score = models.PositiveIntegerField(null=True, blank=True, verbose_name='Оценка')
+    feedback = models.TextField(blank=True, null=True, verbose_name='Комментарий преподавателя')
+    is_checked = models.BooleanField(default=False, verbose_name='Проверено')
+
+    class Meta:
+        verbose_name = 'Ответ на задание'
+        verbose_name_plural = 'Ответы на задания'
+        ordering = ['-submitted_at']
+
+    def __str__(self):
+        return f"Ответ {self.user.username} на задание {self.task.title}"

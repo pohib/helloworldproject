@@ -5,40 +5,55 @@
 <div class="container mt-5">
     <div class="row justify-content-center">
         <div class="col-md-8 col-lg-6">
-            <div class="card shadow-sm">
-                <div class="card-header bg-primary text-white">
-                    <h4 class="mb-0">
-                        <i class="bi bi-people-fill me-2"></i>
-                        {% trans "Вход через социальную сеть" %}
+            <div class="hacker-card-social">
+                <div class="card-header border-bottom border-primary bg-dark">
+                    <h4 class="mb-0 text-primary">
+                        <i class="bi bi-shield-lock me-3" style="margin-left: 10px;"></i>
+                        <span class="typing-container">
+                            <span class="typing-text">СОЦИАЛЬНАЯ АВТОРИЗАЦИЯ</span>
+                            <span class="typing-cursor" style="background-color: #0d6efd;"></span>
+                        </span>
                     </h4>
                 </div>
-                <div class="card-body">
+                <div class="card-body terminal-like text-center">
                     {% if process == "connect" %}
-                        <p class="lead">
+                        <div class="alert alert-hacker border-primary mb-4">
+                            <i class="bi bi-link-45deg me-2"></i>
                             {% blocktrans with provider.name as provider %}
-                            Вы собираетесь подключить новую стороннюю учетную запись с помощью {{ provider }}.
+                            <strong>Подключение аккаунта {{ provider }}</strong>
                             {% endblocktrans %}
+                        </div>
+                        <p class="text-muted">
+                            Вы собираетесь подключить новый внешний аккаунт для входа.
                         </p>
                     {% else %}
-                        <p class="lead">
+                        <div class="alert alert-hacker border-primary mb-4">
+                            <i class="bi bi-key-fill me-2"></i>
                             {% blocktrans with provider.name as provider %}
-                            Вы собираетесь войти в систему, используя {{ provider }} аккаунт.
+                            <strong>Вход через {{ provider }}</strong>
                             {% endblocktrans %}
+                        </div>
+                        <p class="text-muted">
+                            Вы собираетесь войти с использованием стороннего аккаунта.
                         </p>
                     {% endif %}
 
-                    <div class="d-grid gap-3 mt-4">
+                    <div class="provider-icon mb-4">
+                        <i class="bi bi-{{ provider.id }}" style="font-size: 3rem; color: #0d6efd; text-shadow: 0 0 15px rgba(13, 110, 253, 0.5);"></i>
+                    </div>
+
+                    <div class="d-grid gap-3 col-md-8 mx-auto">
                         <form method="post">
                             {% csrf_token %}
-                            <button type="submit" class="btn btn-primary btn-lg w-100">
-                                <i class="bi bi-arrow-right-circle me-2"></i>
-                                {% trans "Продолжить" %}
+                            <button type="submit" class="btn btn-hack-primary">
+                                <i class="bi bi-arrow-right-circle-fill me-2"></i>
+                                {% trans "ПРОДОЛЖИТЬ" %}
                             </button>
                         </form>
                         
-                        <a href="{% url 'account_login' %}" class="btn btn-outline-secondary">
+                        <a href="{% url 'account_login' %}" class="btn btn-hack-outline">
                             <i class="bi bi-arrow-left me-2"></i>
-                            {% trans "Вернуться ко входу" %}
+                            {% trans "ОТМЕНИТЬ" %}
                         </a>
                     </div>
                 </div>
@@ -46,4 +61,120 @@
         </div>
     </div>
 </div>
+
+<style>
+    .hacker-card-social {
+        background: var(--hacker-card);
+        border: 1px solid #333;
+        border-left: 3px solid #0d6efd;
+        box-shadow: 0 0 20px rgba(13, 110, 253, 0.1);
+    }
+    
+    .btn-hack-primary {
+        background: transparent;
+        color: #0d6efd;
+        border: 1px solid #0d6efd;
+        padding: 0.75rem 1.5rem;
+        font-weight: bold;
+        transition: all 0.3s;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .btn-hack-primary::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(13, 110, 253, 0.2), transparent);
+        transition: 0.5s;
+    }
+    
+    .btn-hack-primary:hover::before {
+        left: 100%;
+    }
+    
+    .btn-hack-primary:hover {
+        background: #0d6efd;
+        color: #000;
+        box-shadow: 0 0 15px rgba(13, 110, 253, 0.7);
+    }
+    
+    .btn-hack-outline {
+        background: transparent;
+        color: #666;
+        border: 1px dashed #666;
+        padding: 0.75rem 1.5rem;
+        font-weight: bold;
+        transition: all 0.3s;
+    }
+    
+    .btn-hack-outline:hover {
+        color: var(--hacker-text);
+        border: 1px solid #666;
+        background: rgba(255, 255, 255, 0.05);
+    }
+    
+    .provider-icon {
+        margin: 1.5rem 0;
+    }
+    
+    .typing-container {
+        display: inline-flex;
+        align-items: center;
+        margin-left: 5px;
+    }
+    
+    .typing-text {
+        white-space: nowrap;
+        overflow: hidden;
+        animation: typing 1.5s steps(25, end);
+    }
+    
+    .typing-cursor {
+        display: inline-block;
+        width: 2px;
+        height: 1.2em;
+        animation: blink 1s step-end infinite;
+    }
+    
+    @keyframes typing {
+        from { width: 0 }
+        to { width: 100% }
+    }
+    
+    @keyframes blink {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0; }
+    }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const typingText = document.querySelector('.typing-text');
+    if (typingText) {
+        const text = typingText.textContent;
+        typingText.textContent = '';
+        
+        let i = 0;
+        const typingInterval = setInterval(() => {
+            if (i < text.length) {
+                typingText.textContent += text.charAt(i);
+                i++;
+            } else {
+                clearInterval(typingInterval);
+                const cursor = typingText.nextElementSibling;
+                if (cursor && cursor.classList.contains('typing-cursor')) {
+                    cursor.style.animation = 'none';
+                    setTimeout(() => {
+                        cursor.style.display = 'none';
+                    }, 500);
+                }
+            }
+        }, 50);
+    }
+});
+</script>
 {% endblock %}

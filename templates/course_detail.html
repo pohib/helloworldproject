@@ -1,0 +1,176 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <div class="hacker-card p-4 mb-4">
+        <div class="row">
+            <div class="col-md-4">
+                <img src="{{ course.image.url }}" alt="{{ course.title }}" class="img-fluid rounded hacker-img">
+            </div>
+            <div class="col-md-8">
+                <h1 class="text-hacker">{{ course.title }}</h1>
+                <div class="course-meta mb-3">
+                    <span class="badge bg-{% if course.difficulty == 1 %}success{% elif course.difficulty == 2 %}warning{% else %}danger{% endif %} me-2">
+                        {{ course.get_difficulty_display }}
+                    </span>
+                    <span class="text-muted"><i class="bi bi-clock me-1"></i> {{ course.duration }} мин</span>
+                </div>
+                <div class="course-short-desc text-muted">
+                    {{ course.short_description }}
+                </div>
+                {% if user.is_authenticated %}
+                    {% if next_lecture %}
+                    <div class="mt-3">
+                        <a href="{{ next_lecture.get_absolute_url }}" class="btn btn-hack">
+                            <i class="bi bi-arrow-right-circle me-1"></i>
+                            {% if completed_lectures_count == 0 %}Начать обучение{% else %}Продолжить обучение{% endif %}
+                        </a>
+                    </div>
+                    {% endif %}
+                {% else %}
+                <div class="mt-3">
+                    <a href="{% url 'account_login' %}?next={{ request.path }}" class="btn btn-hack-outline">
+                        <i class="bi bi-box-arrow-in-right me-1"></i>Войти для обучения
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="hacker-card p-4 mb-4">
+        <h3 class="text-hacker mb-3"><i class="bi bi-terminal me-2"></i>О курсе</h3>
+        <div class="description-content p-3">
+            {{ course.description|safe }}
+        </div>
+    </div>
+
+    <div class="hacker-card p-4">
+        <h3 class="text-hacker mb-3"><i class="bi bi-list-task me-2"></i>Программа курса</h3>
+        
+        {% if user.is_authenticated %}
+        <div class="lecture-list">
+            {% for lecture in lectures %}
+            <a href="{{ lecture.get_absolute_url }}" class="lecture-item {% if lecture.id in completed_lecture_ids %}completed{% endif %}">
+                <div class="d-flex w-100 justify-content-between align-items-center">
+                    <div>
+                        <h5 class="mb-1">{% if lecture.lecture_type == 'task' %}Задание{% else %}Лекция{% endif %} {{ forloop.counter }}: {{ lecture.title }}</h5>
+                        <small class="text-muted">{{ lecture.short_description }}</small>
+                    </div>
+                    <div class="text-end">
+                        <small class="text-muted me-2">{{ lecture.duration }} мин</small>
+                        {% if lecture.id in completed_lecture_ids %}
+                        <span class="badge bg-success"><i class="bi bi-check-circle-fill"></i> Завершено</span>
+                        {% else %}
+                        <span class="badge {% if lecture.is_available %}bg-primary{% else %}bg-secondary{% endif %}">
+                            {% if lecture.is_available %}<i class="bi bi-unlock-fill"></i> Доступно{% else %}<i class="bi bi-lock-fill"></i> Заблокировано{% endif %}
+                        </span>
+                        {% endif %}
+                    </div>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="auth-required text-center py-5">
+            <i class="bi bi-lock-fill" style="font-size: 3rem; color: var(--hacker-green);"></i>
+            <h4 class="mt-3 text-hacker">Требуется авторизация</h4>
+            <p class="text-muted">Войдите в систему, чтобы просмотреть программу курса</p>
+            <a href="{% url 'account_login' %}?next={{ request.path }}" class="btn btn-hack mt-3">
+                <i class="bi bi-box-arrow-in-right me-1"></i>Войти
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.hacker-img {
+    border: 1px solid var(--hacker-green);
+    box-shadow: 0 0 15px var(--matrix-green);
+    transition: all 0.3s;
+}
+
+.hacker-img:hover {
+    transform: scale(1.02);
+    box-shadow: 0 0 25px var(--matrix-green);
+}
+
+.text-hacker {
+    color: var(--hacker-green);
+    text-shadow: 0 0 5px var(--matrix-green);
+}
+
+.description-content {
+    border-left: 3px solid var(--hacker-green);
+    padding-left: 15px;
+    background: rgba(0, 255, 0, 0.03);
+}
+
+.lecture-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.lecture-item {
+    display: block;
+    padding: 15px;
+    background: var(--hacker-card);
+    border: 1px solid #333;
+    border-left: 3px solid #333;
+    color: var(--hacker-text);
+    text-decoration: none;
+    transition: all 0.3s;
+}
+
+.lecture-item.completed {
+    border-left: 3px solid var(--hacker-green);
+    background: rgba(0, 255, 0, 0.05);
+}
+
+.lecture-item:hover {
+    border-color: var(--hacker-green);
+    transform: translateX(5px);
+    box-shadow: 0 5px 15px rgba(0, 255, 0, 0.1);
+}
+
+.lecture-item h5 {
+    color: var(--hacker-text);
+    transition: all 0.3s;
+}
+
+.lecture-item:hover h5 {
+    color: var(--hacker-green);
+}
+
+.badge {
+    font-family: 'Courier New', monospace;
+    font-weight: bold;
+    border-radius: 0;
+}
+
+.auth-required {
+    background: rgba(10, 10, 10, 0.5);
+    border: 1px dashed var(--hacker-green);
+    border-radius: 5px;
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+$(document).ready(function() {
+    $('.lecture-item').hover(
+        function() {
+            $(this).find('h5').css('text-shadow', '0 0 8px var(--matrix-green)');
+        },
+        function() {
+            $(this).find('h5').css('text-shadow', 'none');
+        }
+    );
+});
+</script>
+{% endblock %}

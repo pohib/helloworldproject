@@ -2,16 +2,26 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.dispatch import receiver
 from django.db.models.signals import post_save
+from django.templatetags.static import static
+import os
 
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     avatar = models.ImageField(upload_to='avatars/', blank=True, null=True)
     bio = models.TextField(max_length=500, blank=True, null=True)
 
-    def get_avatar_url(self):
+    class Meta:
+        verbose_name = 'Профиль'
+        verbose_name_plural = 'Профили'
+
+    def __str__(self):
+        return f'Профиль {self.user.username}'
+
+    @property
+    def avatar_url(self):
         if self.avatar and hasattr(self.avatar, 'url'):
             return self.avatar.url
-        return '/static/img/default-avatar.png'
+        return static('img/default-avatar.png')
 
 class TelegramUser(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)

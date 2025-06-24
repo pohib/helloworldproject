@@ -1,15 +1,407 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="card">
-    <div class="card-body">
-        <h2 class="card-title">{{ page.title }}</h2>
-        {% if page.image %}
-        <img src="{{ page.image.url }}" class="img-fluid mb-4" alt="{{ page.title }}">
-        {% endif %}
-        <div class="card-text">
-            {{ page.content|safe }}
+<div class="home-container">
+    <div class="hero-section text-center py-5 mb-5">
+        <h1 class="display-4 fw-bold mb-3 glitch">
+            <i class="bi bi-terminal"></i> pwnsch00l
+        </h1>
+        <p class="lead text-matrix">Бесплатный курс по пентесту и кибербезопасности</p>
+    </div>
+
+    <div class="about-course mb-5 p-4 rounded">
+        <h2 class="text-center mb-4 title-hacker"><i class="bi bi-code-square"></i> О курсе</h2>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="hacker-card p-3 mb-3">
+                    <h3><i class="bi bi-bullseye"></i> Цель курса</h3>
+                    <p>Научить основам кибербезопасности, этичного хакинга и защиты информации в понятной для школьников форме.</p>
+                </div>
+                <div class="hacker-card p-3 mb-3">
+                    <h3><i class="bi bi-list-check"></i> Чему научим</h3>
+                    <ul class="hacker-list">
+                        <li><i class="bi bi-arrow-right-circle"></i> Основы сетевой безопасности</li>
+                        <li><i class="bi bi-arrow-right-circle"></i> Работа с Kali Linux</li>
+                        <li><i class="bi bi-arrow-right-circle"></i> Основы криптографии</li>
+                        <li><i class="bi bi-arrow-right-circle"></i> Web-уязвимости и защита</li>
+                        <li><i class="bi bi-arrow-right-circle"></i> Форензика и анализ атак</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="hacker-card p-3 mb-3">
+                    <h3><i class="bi bi-people"></i> Для кого</h3>
+                    <p>Курс разработан специально для школьников 12-18 лет, интересующихся IT и безопасностью.</p>
+                </div>
+                <div class="hacker-card p-3">
+                    <h3><i class="bi bi-award"></i> Результаты</h3>
+                    <p>После прохождения курса вы сможете:</p>
+                    <ul class="hacker-list">
+                        <li><i class="bi bi-arrow-right-circle"></i> Находить уязвимости в системах</li>
+                        <li><i class="bi bi-arrow-right-circle"></i> Защищать свои данные</li>
+                        <li><i class="bi bi-arrow-right-circle"></i> Участвовать в CTF-соревнованиях</li>
+                        <li><i class="bi bi-arrow-right-circle"></i> Понимать принципы работы хакеров</li>
+                    </ul>
+                </div>
+            </div>
         </div>
     </div>
+
+    {% if course %}
+    <div class="course-program mb-5">
+        <h2 class="text-center mb-4 title-hacker"><i class="bi bi-journal-code"></i> Программа курса</h2>
+        <div class="list-group hacker-list-group">
+            {% for lecture in course.lectures.all|slice:":5" %}
+            <a href="{{ lecture.get_absolute_url }}" class="list-group-item list-group-item-action">
+                <div class="d-flex w-100 justify-content-between">
+                    <h5 class="mb-1">[Лекция {{ forloop.counter }}] {{ lecture.title }}</h5>
+                    <small>{{ lecture.duration }} мин</small>
+                </div>
+                <p class="mb-1">{{ lecture.short_description|truncatewords:15 }}</p>
+                <div class="progress-bar-hacker"></div>
+            </a>
+            {% endfor %}
+            {% if course.lectures.count > 5 %}
+            <a href="{{ course.get_absolute_url }}" class="list-group-item list-group-item-action text-center btn-hack-more">
+                >> Показать все {{ course.lectures.count }} лекций <<
+            </a>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="advantages mb-5">
+        <h2 class="text-center mb-4 title-hacker"><i class="bi bi-shield-lock"></i> Почему наш курс?</h2>
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <div class="hacker-card p-3 h-100">
+                    <div class="hexagon"><i class="bi bi-code-slash"></i></div>
+                    <h3 class="text-center">Практика</h3>
+                    <p>80% времени - практические задания и реальные кейсы из мира кибербезопасности.</p>
+                </div>
+            </div>
+            <div class="col-md-6 mb-3">
+                <div class="hacker-card p-3 h-100">
+                    <div class="hexagon"><i class="bi bi-person-video3"></i></div>
+                    <h3 class="text-center">Поддержка</h3>
+                    <p>Обратная связь от преподавателей и помощь в решении сложных задач.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="cta-section text-center py-4 mb-4 rounded">
+        <h2 class="mb-3 glitch" data-text="Готов стать киберзащитником?">Готов стать киберзащитником?</h2>
+        {% if course %}
+        <a href="{{ course.get_absolute_url }}" class="btn btn-hack btn-lg pulse"> начать обучение </a>
+        {% endif %}
+    </div>
 </div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+:root {
+    --hacker-green: #0f0;
+    --hacker-dark: #0a0a0a;
+    --hacker-gradient: linear-gradient(135deg, #0a0a0a 0%, #0f0 50%, #0a0a0a 100%);
+    --hacker-card-gradient: linear-gradient(145deg, #111 0%, #1a1a1a 100%);
+    --matrix-green: rgba(0, 255, 0, 0.7);
+}
+
+.home-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 15px;
+    background-color: #000;
+    color: #ddd;
+    font-family: 'Courier New', monospace;
+}
+
+.hero-section {
+    background: var(--hacker-dark);
+    border-radius: 5px;
+    padding: 3rem 1rem;
+    border: 1px solid var(--hacker-green);
+    box-shadow: 0 0 15px var(--matrix-green);
+    position: relative;
+    overflow: hidden;
+}
+
+@keyframes scanline {
+    0% { top: -10px; }
+    100% { top: 100%; }
+}
+
+.glitch {
+    color: var(--hacker-green);
+    position: relative;
+    animation: glitch 5s infinite;
+}
+
+.glitch::before {
+    content: attr(data-text);
+    position: absolute;
+    left: -2px;
+    text-shadow: -2px 0 #f0f;
+    clip: rect(44px, 450px, 56px, 0);
+    animation: glitch-anim 5s infinite linear alternate-reverse;
+}
+
+.glitch::after {
+    content: attr(data-text);
+    position: absolute;
+    left: 2px;
+    text-shadow: -2px 0 #0ff;
+    clip: rect(44px, 450px, 56px, 0);
+    animation: glitch-anim2 5s infinite linear alternate-reverse;
+}
+
+@keyframes glitch-anim {
+    0% { clip: rect(31px, 9999px, 94px, 0); }
+    20% { clip: rect(112px, 9999px, 76px, 0); }
+    40% { clip: rect(75px, 9999px, 107px, 0); }
+    60% { clip: rect(98px, 9999px, 109px, 0); }
+    80% { clip: rect(95px, 9999px, 53px, 0); }
+    100% { clip: rect(31px, 9999px, 14px, 0); }
+}
+
+@keyframes glitch-anim2 {
+    0% { clip: rect(65px, 9999px, 119px, 0); }
+    20% { clip: rect(156px, 9999px, 42px, 0); }
+    40% { clip: rect(153px, 9999px, 154px, 0); }
+    60% { clip: rect(110px, 9999px, 103px, 0); }
+    80% { clip: rect(157px, 9999px, 129px, 0); }
+    100% { clip: rect(38px, 9999px, 122px, 0); }
+}
+
+.text-matrix {
+    color: var(--matrix-green);
+    text-shadow: 0 0 5px var(--matrix-green);
+}
+
+.hacker-card {
+    background: var(--hacker-card-gradient);
+    border-left: 3px solid var(--hacker-green);
+    border-radius: 0;
+    transition: all 0.3s ease;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    position: relative;
+    overflow: hidden;
+}
+
+.hacker-card::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(0, 255, 0, 0.1), transparent);
+    transition: 0.5s;
+}
+
+.hacker-card:hover::before {
+    left: 100%;
+}
+
+.hacker-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px var(--matrix-green);
+}
+
+.hacker-list li {
+    position: relative;
+    padding-left: 25px;
+    margin-bottom: 8px;
+}
+
+.hacker-list li::before {
+    content: ">";
+    position: absolute;
+    left: 0;
+    color: var(--hacker-green);
+}
+
+.title-hacker {
+    color: var(--hacker-green);
+    text-shadow: 0 0 10px var(--matrix-green);
+    position: relative;
+    padding-bottom: 10px;
+}
+
+.title-hacker::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100px;
+    height: 2px;
+    background: var(--hacker-green);
+    box-shadow: 0 0 5px var(--matrix-green);
+}
+
+.btn-hack {
+    background: transparent;
+    color: var(--hacker-green);
+    border: 1px solid var(--hacker-green);
+    border-radius: 0;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    transition: all 0.3s;
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-hack:hover {
+    background: var(--hacker-green);
+    color: #000;
+    box-shadow: 0 0 10px var(--matrix-green), 0 0 20px var(--matrix-green);
+}
+
+.btn-hack::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(0, 255, 0, 0.4), transparent);
+    transition: 0.5s;
+}
+
+.btn-hack:hover::before {
+    left: 100%;
+}
+
+.pulse {
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% { box-shadow: 0 0 0 0 rgba(0, 255, 0, 0.7); }
+    70% { box-shadow: 0 0 0 10px rgba(0, 255, 0, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(0, 255, 0, 0); }
+}
+
+.hacker-list-group {
+    border-radius: 0;
+}
+
+.hacker-list-group .list-group-item {
+    background: #111;
+    color: #ddd;
+    border: 1px solid #333;
+    border-radius: 0;
+    margin-bottom: 5px;
+    transition: all 0.3s;
+    position: relative;
+    overflow: hidden;
+}
+
+.hacker-list-group .list-group-item:hover {
+    border-color: var(--hacker-green);
+    transform: translateX(5px);
+    box-shadow: 0 0 10px var(--matrix-green);
+}
+
+.hacker-list-group .list-group-item::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 5px;
+    height: 100%;
+    background: var(--hacker-green);
+    transition: all 0.3s;
+}
+
+.hacker-list-group .list-group-item:hover::after {
+    width: 10px;
+    background: var(--hacker-gradient);
+}
+
+.progress-bar-hacker {
+    height: 2px;
+    background: var(--hacker-green);
+    width: 0;
+    transition: width 0.5s;
+}
+
+.hacker-list-group .list-group-item:hover .progress-bar-hacker {
+    width: 100%;
+}
+
+.btn-hack-more {
+    background: transparent;
+    color: var(--hacker-green);
+    border: 1px dashed var(--hacker-green);
+    font-weight: bold;
+    transition: all 0.3s;
+}
+
+.btn-hack-more:hover {
+    background: rgba(0, 255, 0, 0.1);
+    border: 1px solid var(--hacker-green);
+    text-shadow: 0 0 5px var(--matrix-green);
+}
+
+.hexagon {
+    width: 60px;
+    height: 60px;
+    background: var(--hacker-green);
+    color: #000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 15px;
+    clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+    font-size: 1.5rem;
+    transition: all 0.3s;
+}
+
+.hacker-card:hover .hexagon {
+    transform: rotate(360deg);
+    background: #000;
+    color: var(--hacker-green);
+    box-shadow: 0 0 10px var(--matrix-green);
+}
+
+.cta-section {
+    background: var(--hacker-dark);
+    border: 1px solid var(--hacker-green);
+    box-shadow: 0 0 20px var(--matrix-green);
+    position: relative;
+    overflow: hidden;
+}
+
+.cta-section::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: 
+        linear-gradient(rgba(0, 255, 0, 0.1) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 255, 0, 0.1) 1px, transparent 1px);
+    background-size: 20px 20px;
+    opacity: 0.5;
+}
+
+@media (max-width: 768px) {
+    .hero-section {
+        padding: 2rem 1rem;
+    }
+    
+    .display-4 {
+        font-size: 2.5rem;
+    }
+    .advantages .col-md-6 {
+        width: 100%;
+    }
+}
+</style>
 {% endblock %}

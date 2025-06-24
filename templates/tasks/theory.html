@@ -1,0 +1,303 @@
+{% extends 'base.html' %}
+
+{% block breadcrumbs %}
+<nav aria-label="breadcrumb" class="hacker-breadcrumb">
+    <ol class="breadcrumb bg-transparent">
+        <li class="breadcrumb-item"><a href="{% url 'home' %}" class="hacker-link">Главная</a></li>
+        <li class="breadcrumb-item"><a href="{{ task.lecture.course.get_absolute_url }}" class="hacker-link">{{ task.lecture.course.title }}</a></li>
+        <li class="breadcrumb-item"><a href="{{ task.lecture.get_absolute_url }}" class="hacker-link">{{ task.lecture.title }}</a></li>
+        <li class="breadcrumb-item active text-hacker" aria-current="page">{{ task.title }}</li>
+    </ol>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="hacker-card p-4 mb-4 border-secondary">
+        <div class="task-header">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h1 class="text-hacker mb-0"><i class="bi bi-book me-2"></i>{{ task.title }}</h1>
+                <span class="badge bg-secondary">{{ task.get_task_type_display }}</span>
+            </div>
+            <div class="d-flex flex-wrap gap-2 align-items-center mb-3">
+                <span class="text-muted"><i class="bi bi-clock me-1"></i> {{ task.lecture.duration }} мин</span>
+                <span class="text-muted"><i class="bi bi-star me-1"></i> {{ task.max_score }} XP</span>
+            </div>
+        </div>
+
+        <div class="task-content p-3 mb-4">
+            <div class="terminal-like">
+                {{ task.description|safe }}
+            </div>
+        </div>
+
+        <div class="answer-section mb-4">
+            <h4 class="text-hacker mb-3"><i class="bi bi-chat-square-text me-2"></i>Ваш ответ</h4>
+            <form method="post" class="hacker-form">
+                {% csrf_token %}
+                <div class="form-group mb-3">
+                    {{ form.answer }}
+                </div>
+                <div class="d-flex justify-content-between align-items-center">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="agreeCheck" required>
+                        <label class="form-check-label text-muted" for="agreeCheck">
+                            Я подтверждаю, что ответ мой собственный
+                        </label>
+                    </div>
+                    <button type="submit" class="btn btn-hack">
+                        <i class="bi bi-send me-1"></i> Отправить ответ
+                    </button>
+                </div>
+            </form>
+        </div>
+            {% if user_response %}
+            <div class="response-status mt-4 p-3 {% if user_response.is_checked %}border-success{% else %}border-warning{% endif %}">
+                <h5><i class="bi bi-{% if user_response.is_checked %}check-circle{% else %}hourglass{% endif %} me-2"></i>
+                    Статус: {% if user_response.is_checked %}Проверено{% else %}Ожидает проверки{% endif %}
+                </h5>
+                
+                {% if user_response.is_checked %}
+                <div class="mt-3">
+                    <p class="mb-1"><strong>Оценка:</strong> 
+                        <span class="hacker-score">{{ user_response.score }}</span>/{{ task.max_score }}
+                    </p>
+                    {% if user_response.feedback %}
+                    <div class="teacher-feedback mt-2">
+                        <div class="feedback-header">
+                            <i class="bi bi-terminal me-2"></i>
+                            <strong>Комментарий системы:</strong>
+                        </div>
+                        <div class="feedback-content">
+                            {{ user_response.feedback|linebreaks }}
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+                {% endif %}
+            </div>
+            {% endif %}
+        <div class="task-footer text-end">
+            <a href="{{ task.lecture.get_absolute_url }}" class="btn btn-hack-outline">
+                <i class="bi bi-arrow-left me-1"></i> Назад к лекции
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.terminal-like {
+    background-color: #0c0c0c;
+    border: 1px solid #00ff00;
+    padding: 20px;
+    border-radius: 5px;
+    font-family: 'Courier New', monospace;
+    color: #00ff00;
+    line-height: 1.6;
+}
+
+.terminal-like pre {
+    background-color: #000;
+    padding: 10px;
+    border-radius: 3px;
+    overflow-x: auto;
+}
+
+.terminal-like code {
+    color: #00ff00;
+    background-color: transparent;
+}
+
+.terminal-like a {
+    color: #00ccff;
+    text-decoration: none;
+}
+
+.terminal-like a:hover {
+    text-decoration: underline;
+    text-shadow: 0 0 5px #00ccff;
+}
+
+.answer-section {
+    background: rgba(0, 255, 0, 0.05);
+    border: 1px dashed #00ff00;
+    border-radius: 5px;
+    padding: 20px;
+    margin-top: 30px;
+}
+
+.hacker-textarea {
+    background-color: #0c0c0c;
+    border: 1px solid #00ff00;
+    color: #00ff00;
+    width: 100%;
+    font-family: 'Courier New', monospace;
+    transition: all 0.3s;
+    border-radius: 5px;
+    padding: 15px;
+}
+
+.hacker-textarea:focus {
+    border-color: #00ccff;
+    box-shadow: 0 0 0 0.25rem rgba(0, 204, 255, 0.25);
+    outline: none;
+    background-color: #0c0c0c;
+}
+
+.hacker-textarea::placeholder {
+    color: rgba(0, 255, 0, 0.5);
+    font-style: italic;
+}
+
+.form-check-input {
+    background-color: #0c0c0c;
+    border: 1px solid #00ff00;
+}
+
+.form-check-input:checked {
+    background-color: #00ff00;
+    border-color: #00ff00;
+}
+
+.form-check-label {
+    color: #00ff00;
+    font-size: 0.9rem;
+}
+
+@keyframes pulse {
+    0% { box-shadow: 0 0 0 0 rgba(0, 255, 0, 0.4); }
+    70% { box-shadow: 0 0 0 10px rgba(0, 255, 0, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(0, 255, 0, 0); }
+}
+
+.hacker-textarea:focus {
+    animation: pulse 2s infinite;
+}
+
+.teacher-feedback {
+    background: linear-gradient(135deg, #0a0a0a 0%, #111 100%);
+    border: 1px solid #00ff00;
+    border-radius: 5px;
+    padding: 15px;
+    box-shadow: 0 0 15px rgba(0, 255, 0, 0.1);
+    position: relative;
+    overflow: hidden;
+}
+
+.teacher-feedback::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 3px;
+    height: 100%;
+    background: linear-gradient(to bottom, #00ff00, #00ccff);
+}
+
+.feedback-header {
+    color: #00ff00;
+    font-family: 'Courier New', monospace;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+}
+
+.feedback-header i {
+    font-size: 1.2rem;
+}
+
+.feedback-content {
+    color: #00ccff;
+    font-family: 'Courier New', monospace;
+    line-height: 1.6;
+    padding-left: 15px;
+    position: relative;
+}
+
+.feedback-content::before {
+    content: ">";
+    position: absolute;
+    left: 0;
+    color: #00ff00;
+}
+
+.hacker-score {
+    color: #00ff00;
+    font-weight: bold;
+    text-shadow: 0 0 5px #00ff00;
+    animation: pulse 1.5s infinite alternate;
+}
+
+@keyframes pulse {
+    from { text-shadow: 0 0 5px #00ff00; }
+    to { text-shadow: 0 0 15px #00ff00, 0 0 20px #00ff00; }
+}
+
+.response-status {
+    background: rgba(0, 20, 0, 0.7);
+    border-left: 5px solid;
+    border-radius: 5px;
+    padding: 15px;
+    margin-top: 20px;
+}
+
+.response-status.border-success {
+    border-color: #00ff00;
+}
+
+.response-status.border-warning {
+    border-color: #ffc107;
+}
+
+.response-status h5 {
+    display: flex;
+    align-items: center;
+    color: #00ff00;
+    margin-bottom: 0;
+}
+
+.response-status .bi-check-circle {
+    color: #00ff00;
+}
+
+.response-status .bi-hourglass {
+    color: #ffc107;
+    animation: blink 1.5s infinite;
+}
+
+@keyframes blink {
+    0% { opacity: 1; }
+    50% { opacity: 0.3; }
+    100% { opacity: 1; }
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const textarea = document.querySelector('.hacker-textarea');
+    
+    textarea.addEventListener('input', function() {
+        this.style.height = 'auto';
+        this.style.height = (this.scrollHeight) + 'px';
+    });
+
+    const checkBox = document.getElementById('agreeCheck');
+    
+    document.querySelector('form').addEventListener('submit', function(e) {
+        if (!checkBox.checked) {
+            e.preventDefault();
+            checkBox.classList.add('is-invalid');
+            alert('Пожалуйста, подтвердите, что ответ ваш собственный');
+        }
+    });
+
+    checkBox.addEventListener('change', function() {
+        this.classList.remove('is-invalid');
+    });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="hacker-card p-4 mb-4">
+                <h2 class="text-success mb-4 typing-container">
+                    <span class="typing-text">Часто задаваемые вопросы</span>
+                    <span class="typing-cursor"></span>
+                </h2>
+                
+                <div class="terminal-like mb-4">
+                    <p>> Поиск частых вопросов в базе данных...</p>
+                    <p>> Найдено 5 записей.</p>
+                </div>
+                
+                <div class="accordion" id="faqAccordion">
+                    <div class="accordion-item hacker-card mb-2 border-secondary">
+                        <h3 class="accordion-header" id="headingOne">
+                            <button class="accordion-button collapsed text-success bg-dark" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne">
+                                <i class="bi bi-question-circle me-2"></i>Как начать обучение?
+                            </button>
+                        </h3>
+                        <div id="collapseOne" class="accordion-collapse collapse" aria-labelledby="headingOne" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body">
+                                <p>1. Зарегистрируйтесь на платформе</p>
+                                <p>2. Выберите интересующий курс в разделе "Курсы"</p>
+                                <p>3. Начните с первого урока и следуйте инструкциям</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item hacker-card mb-2 border-secondary">
+                        <h3 class="accordion-header" id="headingTwo">
+                            <button class="accordion-button collapsed text-success bg-dark" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo">
+                                <i class="bi bi-question-circle me-2"></i>Нужны ли специальные знания для начала?
+                            </button>
+                        </h3>
+                        <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body">
+                                Нет, наши курсы рассчитаны на новичков. Мы начинаем с основ и постепенно переходим к сложным темам.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item hacker-card mb-2 border-secondary">
+                        <h3 class="accordion-header" id="headingThree">
+                            <button class="accordion-button collapsed text-success bg-dark" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree">
+                                <i class="bi bi-question-circle me-2"></i>Безопасно ли использовать эту платформу?
+                            </button>
+                        </h3>
+                        <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body">
+                                Да, все лабораторные работы выполняются в изолированной среде. Мы строго следим за соблюдением этических норм.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item hacker-card mb-2 border-secondary">
+                        <h3 class="accordion-header" id="headingFour">
+                            <button class="accordion-button collapsed text-success bg-dark" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFour">
+                                <i class="bi bi-question-circle me-2"></i>Есть ли возрастные ограничения?
+                            </button>
+                        </h3>
+                        <div id="collapseFour" class="accordion-collapse collapse" aria-labelledby="headingFour" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body">
+                                Платформа предназначена для школьников от 12 лет.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item hacker-card mb-2 border-secondary">
+                        <h3 class="accordion-header" id="headingFive">
+                            <button class="accordion-button collapsed text-success bg-dark" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFive">
+                                <i class="bi bi-question-circle me-2"></i>Как получить сертификат?
+                            </button>
+                        </h3>
+                        <div id="collapseFive" class="accordion-collapse collapse" aria-labelledby="headingFive" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body">
+                                Будет добавлено в будущем...
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="hacker-card p-3 mt-4 border-warning">
+                    <h5 class="text-warning"><i class="bi bi-headset me-2"></i>Не нашли ответ?</h5>
+                    <p>Если у вас остались вопросы, напишите нам:</p>
+                    <ul class="list-unstyled">
+                        <li class="mb-2"><i class="bi bi-envelope me-2"></i>Email: <a href="mailto:support@pwnsch00l.ru" class="text-success">support@pwnsch00l.ru</a></li>
+                        <li><i class="bi bi-telegram me-2"></i>Telegram: <a href="https://t.me/pwnsch00l_support" class="text-success">@pwnsch00l_support</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

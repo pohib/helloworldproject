@@ -1,5 +1,5 @@
 from django import forms
-from .models import Question, Answer
+from .models import Comment
 
 class TestSubmissionForm(forms.Form):
     def __init__(self, *args, **kwargs):
@@ -7,16 +7,13 @@ class TestSubmissionForm(forms.Form):
         super(TestSubmissionForm, self).__init__(*args, **kwargs)
         
         for question in questions:
-            answers = question.answers.all()
-            choices = [(answer.id, answer.text) for answer in answers]
-            
-            self.fields[f'question_{question.id}'] = forms.ChoiceField(
+            field_name = f'question_{question.id}'
+            self.fields[field_name] = forms.ModelChoiceField(
+                queryset=question.answers.all(),
+                widget=forms.RadioSelect,
                 label=question.text,
-                choices=choices,
-                widget=forms.RadioSelect(attrs={
-                    'class': 'form-check-input'
-                }),
-                required=True
+                empty_label=None,
+                to_field_name='id'
             )
 
 class CodeTaskForm(forms.Form):
@@ -49,14 +46,30 @@ class CTFFlagForm(forms.Form):
             raise forms.ValidationError("Флаг должен быть в формате FLAG{...}")
         return flag
 
-class LectureCommentForm(forms.Form):
-    comment = forms.CharField(
+class CommentForm(forms.ModelForm):
+    class Meta:
+        model = Comment
+        fields = ['text']
+        widgets = {
+            'text': forms.Textarea(attrs={
+                'class': 'form-control hacker-textarea',
+                'rows': 3,
+                'placeholder': 'Ваш комментарий...'
+            }),
+        }
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['text'].label = ''
+        self.fields['text'].max_length = 500
+
+class TaskResponseForm(forms.Form):
+    answer = forms.CharField(
         widget=forms.Textarea(attrs={
-            'class': 'form-control',
-            'rows': 3,
-            'placeholder': 'Оставьте ваш комментарий или вопрос...'
+            'class': 'form-control hacker-textarea',
+            'rows': 8,
+            'placeholder': 'Введите ваш ответ здесь...'
         }),
         label='',
-        max_length=500,
         required=True
     )

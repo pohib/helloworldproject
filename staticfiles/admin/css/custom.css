@@ -1,0 +1,13 @@
+.field-answer pre {
+    white-space: pre-wrap;
+    font-family: Consolas, monospace;
+    background: #f0f0f0;
+    padding: 10px;
+    border-radius: 3px;
+}
+
+.field-feedback textarea {
+    width: 100%;
+    min-height: 150px;
+    font-family: Consolas, monospace;
+}

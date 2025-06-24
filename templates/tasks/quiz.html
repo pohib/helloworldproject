@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+
+{% block breadcrumbs %}
+<nav aria-label="breadcrumb" class="hacker-breadcrumb">
+    <ol class="breadcrumb bg-transparent">
+        <li class="breadcrumb-item"><a href="{% url 'home' %}" class="hacker-link">Главная</a></li>
+        <li class="breadcrumb-item"><a href="{{ task.lecture.course.get_absolute_url }}" class="hacker-link">{{ task.lecture.course.title }}</a></li>
+        <li class="breadcrumb-item"><a href="{{ task.lecture.get_absolute_url }}" class="hacker-link">{{ task.lecture.title }}</a></li>
+        <li class="breadcrumb-item active text-hacker" aria-current="page">{{ task.title }}</li>
+    </ol>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="hacker-card p-4 mb-4 border-warning">
+        <div class="task-header">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h1 class="text-hacker mb-0"><i class="bi bi-patch-question me-2"></i>{{ task.title }}</h1>
+                <span class="badge bg-warning text-dark">{{ task.get_task_type_display }}</span>
+            </div>
+            <div class="d-flex flex-wrap gap-2 align-items-center mb-3">
+                <span class="text-muted"><i class="bi bi-clock me-1"></i> {{ task.lecture.duration }} мин</span>
+                <span class="text-muted"><i class="bi bi-star me-1"></i> {{ task.max_score }} XP</span>
+            </div>
+        </div>
+
+        <div class="task-content p-3 mb-4 terminal-like">
+            {{ task.description|safe }}
+        </div>
+
+        <form method="post" class="hacker-form">
+            {% csrf_token %}
+            <div class="questions-container">
+                {% for question in task.questions.all %}
+                <div class="question-card mb-4 p-3 border-top border-warning">
+                    <h5 class="text-warning">{{ question.text|safe }}</h5>
+                    <div class="answers">
+                        {% for answer in question.answers.all %}
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" 
+                                name="question_{{ question.id }}" 
+                                id="answer_{{ answer.id }}" 
+                                value="{{ answer.id }}">
+                            <label class="form-check-label" for="answer_{{ answer.id }}">
+                                {{ answer.text }}
+                            </label>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <div class="task-footer text-end mt-4">
+                <button type="submit" class="btn btn-hack-warning">
+                    <i class="bi bi-send me-1"></i> Проверить ответы
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.hacker-form .form-check-input {
+    background-color: #0c0c0c;
+    border: 1px solid #ffc107;
+}
+
+.hacker-form .form-check-input:checked {
+    background-color: #ffc107;
+    border-color: #ffc107;
+}
+
+.hacker-form .form-check-label {
+    color: #ffc107;
+    cursor: pointer;
+}
+
+.question-card {
+    background: rgba(255, 193, 7, 0.05);
+    border-radius: 5px;
+}
+
+.answers {
+    margin-left: 20px;
+}
+</style>
+{% endblock %}
