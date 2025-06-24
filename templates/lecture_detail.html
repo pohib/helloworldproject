@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 
+
 {% block breadcrumbs %}
 <nav aria-label="breadcrumb" class="hacker-breadcrumb">
     <ol class="breadcrumb bg-transparent">
@@ -91,6 +92,30 @@
         </div>
     </div>
     {% endif %}
+
+    <div class="lecture-navigation d-flex justify-content-between mt-4 mb-4">
+        {% if prev_lecture %}
+        <a href="{% url 'lecture_detail' course_slug=lecture.course.slug lecture_slug=prev_lecture.slug %}" 
+            class="btn btn-hack-outline">
+            <i class="bi bi-arrow-left me-1"></i> Предыдущая лекция
+        </a>
+        {% else %}
+        <span class="btn btn-hack-outline disabled">
+            <i class="bi bi-arrow-left me-1"></i> Предыдущая лекция
+        </span>
+        {% endif %}
+        
+        {% if next_lecture %}
+        <a href="{% url 'lecture_detail' course_slug=lecture.course.slug lecture_slug=next_lecture.slug %}" 
+            class="btn btn-hack-outline">
+            Следующая лекция <i class="bi bi-arrow-right ms-1"></i>
+        </a>
+        {% else %}
+        <span class="btn btn-hack-outline disabled">
+            Следующая лекция <i class="bi bi-arrow-right ms-1"></i>
+        </span>
+        {% endif %}
+    </div>
 
     <div class="hacker-card p-4">
         <h3 class="text-hacker mb-3"><i class="bi bi-chat-left-text me-2"></i>Вопросы и комментарии</h3>
@@ -362,6 +387,20 @@ iframe {
 
 .reply-form .btn-container {
     margin-top: 10px;
+}
+
+.lecture-navigation {
+    gap: 1rem;
+}
+
+.lecture-navigation .btn {
+    flex: 1;
+    max-width: 250px;
+}
+
+.lecture-navigation .disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
 }
 </style>
 {% endblock %}

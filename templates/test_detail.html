@@ -55,19 +55,19 @@
                     <div class="question-card mb-4 p-3 border-top border-warning">
                         <h5 class="text-warning">{{ question.text|safe }}</h5>
                         <div class="answers">
-                        {% for choice in field %}
-                            <div class="form-check">
-                                <input type="radio" 
-                                    class="form-check-input" 
-                                    name="{{ field.name }}" 
-                                    id="{{ choice.id_for_label }}" 
-                                    value="{{ choice.data.value }}"
-                                    {% if existing_result and choice.data.value|stringformat:"s" in existing_result.details.values|join:"" %}checked{% endif %}>
-                                <label class="form-check-label" for="{{ choice.id_for_label }}">
-                                    {{ choice.choice_label|striptags }}
-                                </label>
-                            </div>
-                        {% endfor %}
+                            {% for choice in field %}
+                                <div class="form-check">
+                                    <input type="radio" 
+                                        class="form-check-input" 
+                                        name="{{ field.name }}" 
+                                        id="{{ choice.id_for_label }}" 
+                                        value="{{ choice.data.value }}"
+                                        {% if existing_result and choice.data.value|stringformat:"s" in existing_result.details.values|join:"" %}checked{% endif %}>
+                                    <label class="form-check-label" for="{{ choice.id_for_label }}">
+                                        {{ choice.choice_label|striptags }}
+                                    </label>
+                                </div>
+                            {% endfor %}
                         </div>
                     </div>
                     {% endwith %}

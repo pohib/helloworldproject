@@ -19,6 +19,7 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
+    'filebrowser',
     'django.contrib.staticfiles',
     'tinymce',
     'core',
@@ -77,6 +78,10 @@ MIDDLEWARE = [
 ]
 
 TINYMCE_DEFAULT_CONFIG = {
+    'relative_urls': False,
+    'remove_script_host': False,
+    'convert_urls': True,
+    'file_browser_callback': 'mce_filebrowser',
     'height': 400,
     'width': '100%',
     'cleanup_on_startup': True,

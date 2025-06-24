@@ -4,8 +4,10 @@ from django.contrib import admin
 from django.urls import path, include
 from core.views import contact_view
 from django.views.generic import TemplateView
+from filebrowser.sites import site
 
 urlpatterns = [
+    path('admin/filebrowser/', site.urls),
     path('admin/', admin.site.urls),
     path('about/', TemplateView.as_view(template_name='about.html')),
     path('teachers/', TemplateView.as_view(template_name='teachers.html')),

@@ -16,7 +16,7 @@
                     <span class="text-muted"><i class="bi bi-clock me-1"></i> {{ course.duration }} мин</span>
                 </div>
                 <div class="course-short-desc text-muted">
-                    {{ course.short_description }}
+                    {{ course.short_description| striptags }}
                 </div>
                 {% if user.is_authenticated %}
                     {% if next_lecture %}
@@ -63,7 +63,7 @@
                         <span class="badge bg-success"><i class="bi bi-check-circle-fill"></i> Завершено</span>
                         {% else %}
                         <span class="badge {% if lecture.is_available %}bg-primary{% else %}bg-secondary{% endif %}">
-                            {% if lecture.is_available %}<i class="bi bi-unlock-fill"></i> Доступно{% else %}<i class="bi bi-lock-fill"></i> Заблокировано{% endif %}
+                            {% if lecture.is_available %}<i class="bi bi-unlock-fill"></i> Доступно{% else %}<i class="bi bi-x"></i> Не пройдено{% endif %}
                         </span>
                         {% endif %}
                     </div>

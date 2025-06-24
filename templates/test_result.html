@@ -77,14 +77,14 @@
                         <div class="answer-result mb-2">
                             <span class="fw-bold">Ваш ответ:</span>
                             <span class="{% if detail.is_correct %}text-success{% else %}text-danger{% endif %}">
-                                {{ detail.answer_text|default:detail.answer_id|default:"Нет ответа" }}
+                                {{ detail.answer_text|default:detail.answer_id|default:"Нет ответа"|striptags }}
                             </span>
                         </div>
                         
                         {% if not detail.is_correct %}
                         <div class="correct-answer">
                             <span class="fw-bold text-warning">Правильный ответ:</span>
-                            <span>{{ detail.correct_answer }}</span>
+                            <span>{{ detail.correct_answer|striptags }}</span>
                         </div>
                         {% endif %}
                     </div>

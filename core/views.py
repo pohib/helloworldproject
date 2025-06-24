@@ -56,6 +56,20 @@ def lecture_detail(request, course_slug, lecture_slug):
         is_published=True
     )
 
+    lectures = Lecture.objects.filter(
+        course=lecture.course, 
+        is_published=True
+    ).order_by('order')
+    
+    lecture_list = list(lectures)
+    try:
+        current_index = lecture_list.index(lecture)
+    except ValueError:
+        current_index = -1
+    
+    prev_lecture = lecture_list[current_index - 1] if current_index > 0 else None
+    next_lecture = lecture_list[current_index + 1] if current_index < len(lecture_list) - 1 else None
+    
     progress, created = UserProgress.objects.get_or_create(
         user=request.user,
         lecture=lecture,
@@ -111,6 +125,8 @@ def lecture_detail(request, course_slug, lecture_slug):
     
     return render(request, 'lecture_detail.html', {
         'lecture': lecture,
+        'prev_lecture': prev_lecture,
+        'next_lecture': next_lecture,
         'tasks': tasks,
         'tests': tests,
         'comments': comments,

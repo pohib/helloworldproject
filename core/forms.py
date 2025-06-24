@@ -15,7 +15,7 @@ class TestSubmissionForm(forms.Form):
                 empty_label=None,
                 to_field_name='id'
             )
-
+            self.fields[field_name].question = question
 class CodeTaskForm(forms.Form):
     code = forms.CharField(
         widget=forms.Textarea(attrs={
